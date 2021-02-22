@@ -1,0 +1,2 @@
+npm install body-parser    -tam kad butu galima gauti formos duomenis
+npm install express-validator   -formos validavimas
