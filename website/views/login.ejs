@@ -1,0 +1,14 @@
+<h3>LOGIN FORM</h3>
+<form method="POST" action="/account/login" enctype="application/x-www-form-urlencoded">
+    <input type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
+    <input type="password" name="password"><br>
+    <input type="submit" value="login">
+</form>
+
+<% if(typeof errorsList != 'undefined') { %>
+    <% errorsList.forEach(function(error) {  %> 
+        <h1> 
+            <%= error.message %>  
+        </h1>
+    <% }) %>
+<% } %>  

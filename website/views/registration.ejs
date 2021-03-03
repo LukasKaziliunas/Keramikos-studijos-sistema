@@ -1,7 +1,15 @@
 <h3>REGISTRATION FORM</h3>
     <form method="POST" action="/account/register" enctype="application/x-www-form-urlencoded">
-        <input type="text" name="username"><br>
+        <input type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
         <input type="password" name="password"><br>
+        <input type="password2" name="password2"><br>
         <input type="submit" value="register">
-    </form>
- 
+    </form><br> 
+    
+    <% if(typeof errorsList != 'undefined') { %>
+        <% errorsList.forEach(function(error) {  %> 
+            <h1> 
+                <%= error.message %>  
+            </h1>
+        <% }) %>
+    <% } %>  

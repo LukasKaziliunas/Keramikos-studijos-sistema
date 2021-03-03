@@ -5,9 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const ejsLayouts = require('express-ejs-layouts');
 
-
 var indexRouter = require('./routes/index');
-var accountRouter = require('./routes/accounts');
+var accountRouter = require('./routes/account');
 var adminRouter = require('./routes/administration');
 var clientsRouter = require('./routes/clients');
 var inventoryRouter = require('./routes/inventory');
