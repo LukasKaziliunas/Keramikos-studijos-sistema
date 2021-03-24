@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const ejsLayouts = require('express-ejs-layouts');
+const fileUpload = require('express-fileupload');
 
 var indexRouter = require('./routes/index');
 var accountRouter = require('./routes/account');
@@ -21,12 +22,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(ejsLayouts); 
 app.set('layout', './layouts/default.ejs'); //dafault layout
 app.set('view engine', 'ejs');
+app.use('/static', express.static(path.join(__dirname, 'public')))
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload());
 
 app.use('/', indexRouter);
 app.use('/account', accountRouter);

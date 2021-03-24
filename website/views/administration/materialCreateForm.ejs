@@ -1,0 +1,26 @@
+<form method="POST" action="/administration/materialCreate" enctype="application/x-www-form-urlencoded">
+        pavadinimas
+        <input type="text" name="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+        kiekis
+        <input type="number" name="amount" step="0.01" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>"><br>
+        kaina
+        <input type="number" name="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>"><br>
+        tiekejas
+        <select name="supplier">
+            <option value="">-</option> 
+            <% if(typeof suppliers != 'undefined') { %>
+                <% suppliers.forEach(function(supplier) {  %> 
+                    <option value="<%=supplier.id%>"><%=supplier.name%></option> 
+                <% }) %>
+            <% } %>  
+        </select><br>
+        <input type="submit" value="išsaugoti">
+</form><br> 
+    
+    <% if(typeof errorsList != 'undefined') { %>
+        <% errorsList.forEach(function(error) {  %> 
+            <h1> 
+                <%= error.message %>  
+            </h1>
+        <% }) %>
+    <% } %>  

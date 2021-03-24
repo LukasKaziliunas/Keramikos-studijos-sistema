@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/stylesheets/clientMain.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <% if (typeof auth !='undefined' && auth==true) { %>
+        <%- include('../partials/headerLoggedIn.ejs') %>
+        <%} else { %>
+        <%- include('../partials/headerGuest.ejs') %>
+        <% } %>
+
+
+        <%- include('../partials/clientMenu.ejs') %>
+        <div id="content">
+        <%- body %>
+        </div>
+        <%- include('../partials/footer.ejs') %>
+</body>
+
+</html>

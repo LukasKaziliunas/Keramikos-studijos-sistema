@@ -10,7 +10,7 @@ exports.get = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : line 13");
+        reject("mysql error : get");
       } else {
         var resultJson = Object.values(JSON.parse(JSON.stringify(results)))
         resolve(resultJson[0]);
@@ -29,7 +29,7 @@ exports.query = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : line 32");
+        reject("mysql error : query");
       } else {
         var resultJson = Object.values(JSON.parse(JSON.stringify(results)))
         resolve(resultJson);
@@ -48,7 +48,7 @@ exports.insert = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : line 51");
+        reject("mysql error : insert");
       } else {
         resolve(results.insertId);
       }
@@ -63,7 +63,7 @@ function connect() {
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'keramika',
+    database: 'keramika2',
     multipleStatements: true
   });
 

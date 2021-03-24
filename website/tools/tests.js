@@ -17,8 +17,16 @@ async function test ()
 async function test(){
     //var res = await User.save("jonas", "hash", "1");
     try{
-        var res = await User.save('test123', "testtest ; ' \" ' ' ", 1); 
+        var res = await User.getByEmail("jonaitis@gmail.com") 
         console.log(res);
+        if(res)
+        {
+            console.log("yes")
+        }
+        else
+        {
+            console.log("no");
+        }
     }catch(err)
     {
         console.log(err);
@@ -26,6 +34,27 @@ async function test(){
    
     
 }
+/*
+const x = async () => {
+    const u = await User.getByEmail("jonaitis@gmail.com");
+    if(u)
+    return true
+    else
+    return false
+}
 
-test();
+const result = x();
+
+result.then(res => console.log(res))
+*/
+User.getByEmail("jonaitis@gmail.com").then(res => {
+    if(res)
+    {
+        console.log("toks yra")
+    }else{
+        console.log("nera")
+    }
+})
+
+//test();
 

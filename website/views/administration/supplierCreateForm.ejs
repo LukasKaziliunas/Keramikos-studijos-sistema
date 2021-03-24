@@ -1,0 +1,17 @@
+<form method="POST" action="/administration/supplierCreate" enctype="application/x-www-form-urlencoded">
+    name
+    <input type="text" name="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+    email
+    <input type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
+    phone
+    <input type="text" name="phone" value="<% if(typeof fields.phone != 'undefined') { %><%=fields.phone%><% } %>"><br>
+    <input type="submit" value="išsaugoti">
+</form><br> 
+
+<% if(typeof errorsList != 'undefined') { %>
+    <% errorsList.forEach(function(error) {  %> 
+        <h1> 
+            <%= error.message %>  
+        </h1>
+    <% }) %>
+<% } %>  

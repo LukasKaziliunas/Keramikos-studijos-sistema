@@ -1,9 +1,10 @@
 require('dotenv').config()
-var express = require('express');
+const express = require('express');
 const bcrypt = require('bcrypt')
-var { check, validationResult, Result } = require('express-validator');
+const { check, validationResult, Result } = require('express-validator');
 const User = require("../models/User");
 const jwt = require('jsonwebtoken')
+const { authenticate } = require("../tools/auth");
 
 var router = express.Router();
 
@@ -30,7 +31,7 @@ router.post('/login', [
 
     if (hasErrors) {
         const errorsList = myValidationResult(req).array();
-        res.render('login', { errorsList: errorsList, fields: req.body });
+        return res.render('account/login', { errorsList: errorsList, fields: req.body });
     }
     else {
         User.getByEmail(req.body.email)
@@ -38,37 +39,41 @@ router.post('/login', [
                 if (user) {
                     bcrypt.compare(req.body.password, user.password).then(result => {
                         if (!result) {  //jei result = false, reiskia nesutapo
-                            res.render('login', { errorsList: [{ message: "Blogas slaptažodis." }], fields: req.body });
+                            return res.render('account/login', { errorsList: [{ message: "Blogas slaptažodis." }], fields: req.body });
                         } else {
                             delete user.password; // is naudotojo objekto išimu jo slaptazodi
                             try {
-                                const accessToken = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, { expiresIn: '15min' })
+                                const accessToken = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, { expiresIn: '45min' })
                                 createCookie(res, "access_token", accessToken, null)
-                                res.send(accessToken);
+                                if (user.userType == 1)
+                                    return res.redirect('/clients');
+                                else if (user.userType == 2)
+                                    return res.redirect('/inventory');
+                                else if (user.userType == 3)
+                                    return res.redirect('/administration');
+                                else
+                                    return res.sendStatus(500);
                             } catch (err) {
                                 console.log(err);
-                                res.sendStatus(500);
+                                return res.sendStatus(500);
                             }
-
                             // const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
                         }
-
-
                     }).catch(error => { //bcrypt promise grazino reject
                         console.log(error)
-                        res.sendStatus(500);
+                        return res.sendStatus(500);
                     });
                 } else {
-                    res.render('login', { errorsList: [{ message: "toks naudotojas nerastas, bandykite iš naujo." }], fields: req.body }); //nerastas email
+                    return res.render('account/login', { errorsList: [{ message: "toks naudotojas nerastas, bandykite iš naujo." }], fields: req.body }); //nerastas email
                 }
-            }).catch(err => console.log(err))
+            }).catch(err => { console.log(err); return res.sendStatus(500) })
 
     }
 });
 
 router.get('/logout', function (req, res, next) {
     deleteCookie(res, "access_token")
-    res.sendStatus(200);
+    return res.render('index', { layout: './layouts/clientLayout', auth: false });
 });
 
 router.post('/register', [
@@ -84,19 +89,28 @@ router.post('/register', [
 
     const hasErrors = !myValidationResult(req).isEmpty();
 
-    if (hasErrors) {
+    if (hasErrors) {  // form has errors
         const errorsList = myValidationResult(req).array();
-        res.render('registration', { title: 'registration form', errorsList: errorsList, fields: req.body });
+        return res.render('account/registration', { errorsList: errorsList, fields: req.body });
     }
-    else {
-        var email = req.body.email;
-        var password = req.body.password;
+    else { //form is valid
+        let email = req.body.email;
+        let password = req.body.password;
 
-        bcrypt.genSalt(5)
-            .then(salt => bcrypt.hash(password, salt))
-            .then(hash => User.save(email, hash, '1'))
-            .then(() => res.sendStatus(200))
-            .catch(error => { console.log(error); res.sendStatus(400) })
+        User.getByEmail(email).then(gotUser => {
+            if (gotUser) // if user is returned then this will be true, if its undefined, then else will be executed
+            {
+                return res.render('account/registration', { errorsList: [{ message: "toks naudotojas jau yra" }], fields: req.body });
+            } 
+            else // user dont exist
+            {
+                bcrypt.genSalt(5)
+                    .then(salt => bcrypt.hash(password, salt))
+                    .then(hash => User.save(email, hash, '1'))
+                    .then(() => { return res.render('index', { layout: './layouts/clientLayout', auth: false }) })
+                    .catch(error => { console.log(error); return res.sendStatus(400) })
+            }
+        })
     }
 });
 
@@ -105,11 +119,11 @@ router.get('/emailForm', function (req, res, next) {
 });
 
 router.get('/registerForm', function (req, res, next) {
-    res.render('registration', { title: 'registration form', fields: {} });
+    res.render('account/registration', { fields: {} });
 });
 
 router.get('/loginForm', function (req, res, next) {
-    res.render('login', { fields: {} });
+    res.render('account/login', { fields: {} });
 });
 
 router.get('/accountUpdateForm', function (req, res, next) {
@@ -121,30 +135,16 @@ router.get('/profile', authenticate, function (req, res, next) {
     console.log(req.user);
 });
 
-function createCookie(res, name, value, maxage)
-{
+function createCookie(res, name, value, maxage) {
     //jeigu maxage = null, tada slapukas galios tik esamai sesijai.
-  var options = {}
-  options['httpOnly'] = true
-  if(maxage != null) options['maxAge'] = maxage
-  res.cookie(name, value , options)
+    var options = {}
+    options['httpOnly'] = true
+    if (maxage != null) options['maxAge'] = maxage
+    return res.cookie(name, value, options)
 }
 
-function deleteCookie(res, name)
-{
-    res.cookie(name, "" , {maxAge: 1})
+function deleteCookie(res, name) {
+    return res.cookie(name, "", { maxAge: 1 })
 }
-
-function authenticate(req, res, next){
-  
-    const token = req.cookies.access_token
-    if(token == null) return res.sendStatus(401) // nera tokeno slapukyje, reikia prisijungti (Unauthorized)
-    jwt.verify(token, process.env.ACCESS_TOCKEN_SECRET, (err, user) => {
-      if(err) return res.sendStatus(403) // baigesi galiojimo laikas (forbidden), sesijos laikas baigesi
-      req.user = user
-      next()
-    })
-  }
-
 
 module.exports = router;

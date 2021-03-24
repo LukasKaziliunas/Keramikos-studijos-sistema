@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var { authenticate } = require("../tools/auth");
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('clients home view');
+router.get('/', authenticate, function(req, res, next) {
+  res.render('index', { layout:  './layouts/clientLayout', auth: true });
 });
 
 router.get('/basket', function(req, res, next) {

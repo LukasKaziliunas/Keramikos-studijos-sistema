@@ -1,0 +1,70 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+
+<form method="POST" action="/inventory/potteryCreate" encType="multipart/form-data">
+    pavadinimas
+    <input type="text" name="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+    kaina
+    <input type="number" name="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>"><br>
+    aprasymas
+    <textarea name="description" rows="4" cols="50"><% if(typeof fields.description != 'undefined') { %><%=fields.description%><% } %></textarea><br>
+    tipas
+    <select name="type">
+        <% types.forEach(function(type) {  %> 
+            <option value="<%=type.id%>"><%=type.name%></option> 
+        <% }) %>
+    </select><br>
+    medziagos
+    <button id="add" type="button">pridėti</button>
+    <ul id="materials_list">
+
+    </ul>
+    nuotraukos <br>
+    <input type="file" name="photos" multiple><br> 
+    <input type="submit" value="išsaugoti">
+
+</form><br> 
+
+<% if(typeof errorsList != 'undefined') { %>
+    <% errorsList.forEach(function(error) {  %> 
+        <h1> 
+            <%= error.message %>  
+        </h1>
+    <% }) %>
+<% } %>  
+
+<template id="material_template">
+    <li>
+    <select name="materials">
+        <% materials.forEach(function(material) {  %> 
+            <option value="<%=material.id%>"><%=material.name%> | kiekis - <%=material.amount%></option> 
+        <% }) %>
+    </select>
+    <input type="number" name="amounts" step="0.01"> 
+    <button id="sub" type="button" class="remove">[-]</button><br>
+    </li>
+</template>
+
+<script>
+$(document).ready(function () {
+    var materials = $('#materials_list');
+
+    var materialTemplate = $('#material_template').html();
+
+    function addEntry()
+    {
+        materials.append(materialTemplate);
+    }
+
+    $('#add').on('click', function(){
+        addEntry();
+    })
+
+    materials.delegate( '.remove' ,'click', function(){
+            
+        var $li = $(this).closest('li');
+        $li.remove();
+            
+    });
+})
+
+</script>
