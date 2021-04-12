@@ -4,11 +4,11 @@ var { authenticate } = require("../tools/auth");
 
 /* GET home page. */
 router.get('/', authenticate, function (req, res, next) {
-  if (req.user.userType == 1)
-    res.redirect('/clients');
-  else if (req.user.userType == 2)
+  if (req.user.userType == 1)//client
+    res.redirect('/clients/gallery');
+  else if (req.user.userType == 2)//worker
     res.redirect('/inventory');
-  else if (req.user.userType == 3)
+  else if (req.user.userType == 3)//admin
     res.redirect('/administration');
   else
     res.sendStatus(500);

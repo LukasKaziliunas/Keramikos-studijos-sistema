@@ -1,8 +1,17 @@
-<h3>LOGIN FORM</h3>
 <form method="POST" action="/account/login" enctype="application/x-www-form-urlencoded">
-    <input type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
-    <input type="password" name="password"><br>
-    <input type="submit" value="login">
+
+    <fieldset>
+        <legend>prisijungimo forma</legend>
+
+    <label for="email">el. paštas:</label><br>
+    <input id="email" type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
+
+    <label for="psw">slaptažodis:</label><br>
+    <input id="psw" type="password" name="password"><br>
+
+    <br><input type="submit" value="prisijungti">
+
+    </fieldset>
 </form>
 
 <% if(typeof errorsList != 'undefined') { %>

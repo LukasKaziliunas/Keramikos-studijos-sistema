@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require('bcrypt')
 const { check, validationResult, Result } = require('express-validator');
 const User = require("../models/User");
+const Client = require("../models/Client")
 const jwt = require('jsonwebtoken')
 const { authenticate } = require("../tools/auth");
 
@@ -45,14 +46,7 @@ router.post('/login', [
                             try {
                                 const accessToken = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, { expiresIn: '45min' })
                                 createCookie(res, "access_token", accessToken, null)
-                                if (user.userType == 1)
-                                    return res.redirect('/clients');
-                                else if (user.userType == 2)
-                                    return res.redirect('/inventory');
-                                else if (user.userType == 3)
-                                    return res.redirect('/administration');
-                                else
-                                    return res.sendStatus(500);
+                                return res.redirect('/');
                             } catch (err) {
                                 console.log(err);
                                 return res.sendStatus(500);
@@ -73,12 +67,15 @@ router.post('/login', [
 
 router.get('/logout', function (req, res, next) {
     deleteCookie(res, "access_token")
-    return res.render('index', { layout: './layouts/clientLayout', auth: false });
+    return res.redirect('/');
 });
 
 router.post('/register', [
     // username must be an email
     check('email', 'neteisingas el. pašto adresas').isEmail(),
+    check('name', 'vardas neivestas').notEmpty(),
+    check('lastname', 'pavarde neivesta').notEmpty(),
+    check('phone', 'telefono numeris neivestas').notEmpty(),
     // password must be at least 5 chars long
     check('password', 'slaptažodis per trumpas').isLength({ min: 2 }),
     check('password', 'slaptažodžiai turi sutapti').custom((value, { req, loc, path }) => {
@@ -96,6 +93,9 @@ router.post('/register', [
     else { //form is valid
         let email = req.body.email;
         let password = req.body.password;
+        let name = req.body.name;
+        let lastname = req.body.lastname;
+        let phone = req.body.phone;
 
         User.getByEmail(email).then(gotUser => {
             if (gotUser) // if user is returned then this will be true, if its undefined, then else will be executed
@@ -107,7 +107,8 @@ router.post('/register', [
                 bcrypt.genSalt(5)
                     .then(salt => bcrypt.hash(password, salt))
                     .then(hash => User.save(email, hash, '1'))
-                    .then(() => { return res.render('index', { layout: './layouts/clientLayout', auth: false }) })
+                    .then(UserId => Client.save(name, lastname, phone, UserId))
+                    .then(() => { return res.redirect('/'); })
                     .catch(error => { console.log(error); return res.sendStatus(400) })
             }
         })

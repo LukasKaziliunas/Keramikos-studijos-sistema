@@ -1,60 +1,14 @@
-// test mysql
-
-//const mysql = require('./mysql_');
-
-//mysql.test();
-
-// test models
-const User = require("../models/User");
+const Pottery = require("../models/Pottery");
 /*
-async function test ()
-{
-    var user = await User.get(1);
-    console.log(user);
+let a = 55.99;
+let b = 22;
 
-}*/
+let c = a + b;
 
-async function test(){
-    //var res = await User.save("jonas", "hash", "1");
-    try{
-        var res = await User.getByEmail("jonaitis@gmail.com") 
-        console.log(res);
-        if(res)
-        {
-            console.log("yes")
-        }
-        else
-        {
-            console.log("no");
-        }
-    }catch(err)
-    {
-        console.log(err);
-    }
-   
-    
-}
-/*
-const x = async () => {
-    const u = await User.getByEmail("jonaitis@gmail.com");
-    if(u)
-    return true
-    else
-    return false
-}
+console.log(c.toFixed(2));
 
-const result = x();
-
-result.then(res => console.log(res))
 */
-User.getByEmail("jonaitis@gmail.com").then(res => {
-    if(res)
-    {
-        console.log("toks yra")
-    }else{
-        console.log("nera")
-    }
-})
 
-//test();
+let array = [ '9', '10' ];
 
+Pottery.changeStateOrdered(24, array);

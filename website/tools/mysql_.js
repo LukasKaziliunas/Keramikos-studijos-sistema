@@ -1,7 +1,7 @@
 var mysql = require('mysql');
 
 // returns only one item (first item in an array)
-exports.get = function (query) {
+exports.getOne = function (query) {
 
   const connection = connect();
 
@@ -63,7 +63,7 @@ function connect() {
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'keramika2',
+    database: 'keramika3',
     multipleStatements: true
   });
 

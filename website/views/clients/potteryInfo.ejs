@@ -1,0 +1,66 @@
+<link rel="stylesheet" href="/static/stylesheets/potteryinfo.css">
+<script src="/static/javascripts/basket.js"></script>
+
+<div id="photos-container">
+
+    <section>
+        <div class="container">
+            <div class="carousel">
+
+                <% if(typeof photos != 'undefined') { %>
+                    <% photos.forEach(function(photo) {  %> 
+                            <input type="radio" name="slides" id="slide-<%=photo.id%>">
+                    <% }) %>
+                <% } %> 
+
+                <ul class="carousel__slides">
+                    
+                    <% if(typeof photos != 'undefined') { %>
+                        <% photos.forEach(function(photo) {  %> 
+                            <li class="carousel__slide">
+                                <figure>
+                                    <div>
+                                        <img src="<%=photo.path%>" >
+                                    </div>
+                                </figure>
+                            </li>
+                        <% }) %>
+                    <% } %> 
+                    
+                </ul>    
+                <ul class="carousel__thumbnails">
+                    
+                    <% if(typeof photos != 'undefined') { %>
+                        <% photos.forEach(function(photo) {  %> 
+                            <li>
+                                <label for="slide-<%=photo.id%>"><img src="<%=photo.path%>"></label>
+                            </li>
+                        <% }) %>
+                    <% } %> 
+                   
+                </ul>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div id="info-container">
+
+<p>
+    <span>Pavadinimas: </span> <span><%=pottery.name%></span>
+</p>
+
+<p>
+    <span><%=pottery.description%></span>
+</p>
+
+<p> 
+    <span>Kaina: </span> <span><%=pottery.price%></span> 
+</p>
+
+
+<button type="button" id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>">Dėti į krepšelį</button>
+<p id="message"></p>
+</div>
+

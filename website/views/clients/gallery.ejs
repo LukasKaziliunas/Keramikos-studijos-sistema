@@ -1,0 +1,21 @@
+<link rel="stylesheet" href="/static/stylesheets/gallery.css">
+
+<div class="grid-container">
+
+    <% if(typeof items != 'undefined') { %>
+        <% items.forEach(function(item) {  %> 
+            <div class="grid-item">
+                <div class="picture">
+                    <img src=<%=item.path%>>
+                </div>
+                <div class="info">
+                    <%=item.name%> <br>
+                    <%=item.price%> <br>
+                   <a href="/clients/potteryinfo/<%=item.id%>"> <button>atidaryti</button> </a>
+                </div>
+            </div>
+        <% }) %>
+    <% } %>  
+    
+  </div>
+  

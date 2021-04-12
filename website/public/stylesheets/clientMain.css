@@ -1,13 +1,16 @@
 body {
     margin: 0;
     padding: 0;
+    margin-left: 15em;
+    margin-right: 15em;
 }
 
 #header {
-    background-color: green;
+    background-color: lightslategrey;
     height: 50px;
 }
 
 #content {
-    height: 800px;
+    height: auto;
+    min-height: 800px;
 }

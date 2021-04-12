@@ -1,9 +1,29 @@
-<h3>REGISTRATION FORM</h3>
-    <form method="POST" action="/account/register" enctype="application/x-www-form-urlencoded">
-        <input type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
-        <input type="password" name="password"><br>
-        <input type="password2" name="password2"><br>
-        <input type="submit" value="register">
+   <form method="POST" action="/account/register" enctype="application/x-www-form-urlencoded">
+
+        <fieldset>
+            <legend>Registracijos forma</legend>
+
+        <label for="name">vardas:</label><br>
+        <input id="name" type="name" name="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+
+        <label for="lastname">pavardė:</label><br>
+        <input id="lastname" type="lastname" name="lastname" value="<% if(typeof fields.lastname != 'undefined') { %><%=fields.lastname%><% } %>"><br>
+
+        <label for="phone">telefonas:</label><br>
+        <input id="phone" type="phone" name="phone" value="<% if(typeof fields.phone != 'undefined') { %><%=fields.phone%><% } %>"><br>
+
+        <label for="email">el. paštas:</label><br>
+        <input id="email" type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
+
+        <label for="psw">slaptažodis:</label><br>
+        <input id="psw" type="password" name="password"><br>
+
+        <label for="psw2">pakartoti slaptažodį:</label><br>
+        <input id="psw2" type="password" name="password2"><br>
+
+        <br><input type="submit" value="registruotis">
+
+        </fieldset>
     </form><br> 
     
     <% if(typeof errorsList != 'undefined') { %>

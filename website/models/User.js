@@ -4,13 +4,13 @@ const { format } = require('mysql');
 exports.getById = function(id){
     var sql = "SELECT * FROM `user` WHERE `id` = ?";
     sql = format(sql, id);
-    return mysql.get(sql);
+    return mysql.getOne(sql);
 }
 
 exports.getByEmail = function(email){
     var sql = "SELECT * FROM `user` WHERE `email` = ?";
     sql = format(sql, email);
-    return mysql.get(sql);
+    return mysql.getOne(sql);
 }
 
 exports.save = function(email, password, type){

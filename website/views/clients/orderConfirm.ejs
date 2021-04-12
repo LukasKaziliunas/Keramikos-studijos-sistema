@@ -1,0 +1,54 @@
+<h2>Suma: <%= price %> </h2>
+
+<form method="POST" action="/orders/createOrder" enctype="application/x-www-form-urlencoded">
+
+    <fieldset>
+        <legend>Atsiėmimo būdas</legend>
+
+        <% if(typeof delivery != 'undefined') { %>
+            <% delivery.forEach(function(type) {  %> 
+                <input type="radio" id="<%=type.id%>" name="deliveryType" value="<%=type.id%>">
+                <label for="<%=type.id%>"><%=type.name%></label><br>
+            <% }) %>
+        <% } %>  
+
+    </fieldset>
+
+    <fieldset>
+        <legend>Užsakymo duomenys</legend>
+
+    <label for="postal">pašto kodas:</label><br>
+    <input id="postal" type="text" name="postal" required><br>
+
+    <label for="city">miestas:</label><br>
+    <input id="city" type="text" name="city" required><br>
+
+    <label for="address">adresas:</label><br>
+    <input id="address" type="text" name="address" required><br>
+
+    </fieldset>
+
+    <fieldset>
+        <legend>Mokėjimo būdas</legend>
+
+        <% if(typeof payments != 'undefined') { %>
+            <% payments.forEach(function(type) {  %> 
+                <input type="radio" id="<%=type.id%>" name="paymentType" value="<%=type.id%>">
+                <label for="<%=type.id%>"><%=type.name%></label><br>
+            <% }) %>
+        <% } %>  
+
+    </fieldset>
+    <% if(typeof items != 'undefined') { %>
+        <% items.forEach(function(item) {  %> 
+            <input type="number" name="items" value="<%=item%>" hidden>
+        <% }) %>
+    <% } %>
+    <input type="number" name="orderType" value="<%=orderType%>" hidden>
+    <input type="number" name="price" value="<%=price%>" hidden>
+    <% if(typeof potteryOrder != 'undefined') { %>
+        <input type="text" name="potteryOrder" value="<%=potteryOrder%>" hidden>
+    <% } %>
+    <button type="submit">Patvirtinti</button>
+
+</form>

@@ -4,7 +4,7 @@ const { format } = require('mysql');
 exports.getById = function(id){
     var sql = "SELECT * FROM `supplier` WHERE `id` = ?";
     sql = format(sql, id);
-    return mysql.get(sql);
+    return mysql.getOne(sql);
 }
 
 exports.getAll = function(){

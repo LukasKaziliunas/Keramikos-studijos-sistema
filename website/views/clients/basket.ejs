@@ -1,0 +1,49 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+<link rel="stylesheet" href="/static/stylesheets/basket.css">
+<script src="/static/javascripts/basket.js"></script>
+
+<form method="POST" action="/orders/orderConfirmForm" encType="multipart/form-data">
+    <div id="basketList">
+
+    </div>
+    <input type="number" value="3" name="orderType" hidden>
+    <div id="submit-button">
+
+    </div>
+
+</form>
+
+<script>
+    $(document).ready(function() {
+        let basketItems = localStorage.getItem('basketItems');
+        basketItems = JSON.parse(basketItems)
+        if(basketItems != null){
+            $("#myTemplate").tmpl(basketItems).appendTo("#basketList");  
+            let submitBtnDiv = document.getElementById("submit-button");
+            submitBtnDiv.innerHTML = '<button style="float: right;" type="submit">kurti užsakymą</button>'; 
+        }
+    });
+
+</script>
+
+<script id="myTemplate" type="text/x-jquery-tmpl">
+
+    <div class="item">
+        <div class="left">
+            <img src="${photo}">
+        </div>
+
+        <div class="mid">
+            <h3>${name}</h3>
+            <p> ${price}</p>
+        </div>
+
+        <div class="right">
+            <button type="button" onclick=remove_from_basket(${id}) >Pašalinti</button>
+        </div>
+    </div> 
+    <input type="number" name="items" value="${id}" hidden>
+    <input type="number" name="price" value="${price}" hidden>
+    <hr>
+</script>

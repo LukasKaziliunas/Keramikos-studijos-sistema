@@ -12,7 +12,6 @@ var adminRouter = require('./routes/administration');
 var clientsRouter = require('./routes/clients');
 var inventoryRouter = require('./routes/inventory');
 var ordersRouter = require('./routes/orders');
-var paymentsRouter = require('./routes/payments');
 var reportsRouter = require('./routes/reports');
 
 var app = express();
@@ -22,6 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(ejsLayouts); 
 app.set('layout', './layouts/default.ejs'); //dafault layout
 app.set('view engine', 'ejs');
+///static - virtual path , public - aplankas kur yra statiniai failai
 app.use('/static', express.static(path.join(__dirname, 'public')))
 
 app.use(logger('dev'));
@@ -36,7 +36,6 @@ app.use('/administration', adminRouter);
 app.use('/clients', clientsRouter);
 app.use('/inventory', inventoryRouter);
 app.use('/orders', ordersRouter);
-app.use('/payments', paymentsRouter);
 app.use('/reports', reportsRouter);
 
 // catch 404 and forward to error handler
@@ -52,7 +51,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render("error");
 });
 
 module.exports = app;
