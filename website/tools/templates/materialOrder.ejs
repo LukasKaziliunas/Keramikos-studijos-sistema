@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+        <div style="width: 50%; margin-right: auto; margin-left: auto;">
+            <h2>Užsakymas</h2>
+            <p><b>vardas:</b> <%= contactDetails.name %> </p>
+            <p><b>pavardė:</b> <%= contactDetails.lastname %> </p>
+            <p><b>telefonas:</b> <%= contactDetails.phone %> </p>
+            <p><b>miestas:</b> <%= order.city %> </p>
+            <p><b>adresas:</b> <%= order.address %> </p>
+            <table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%">
+              <tr>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">pavadinimas</th>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">kiekis</th>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">kaina</th>
+              </tr>
+    
+                <% materialsOrders.forEach(function(mOrder) {  %> 
+                    <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= mOrder.name %></td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= mOrder.amount %></td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= mOrder.price %></td>
+                      </tr>
+                <% }) %>
+               
+              <tr>
+                <td></td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Suma:</b></td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= order.sum %> </td>
+              </tr>
+              
+            </table>
+        </div>
+        
+</body>
+</html>

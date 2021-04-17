@@ -1,27 +1,4 @@
-.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    column-gap: 2em;
-    row-gap: 2em;
-    grid-auto-rows: 300px;
-    margin-top: 1em;
-    
-  }
-  .grid-item {
-    background-color: rgba(255, 255, 255, 0.8);
-   
-    padding: 5px
-  }
 
-  .picture{
-    height: 70%;
-    
-  }
-
-  .info{
-    height: 30%;
-    
-  }
 
   img {
     width: 100%;

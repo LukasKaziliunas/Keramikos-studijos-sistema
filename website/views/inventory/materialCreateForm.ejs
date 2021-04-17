@@ -1,0 +1,52 @@
+<form method="POST" action="/inventory/materialCreate" enctype="application/x-www-form-urlencoded">
+
+    <fieldset>
+        <legend>Medžiagos pridėjimo forma</legend>
+
+        <label for="name">pavadinimas:</label><br>
+        <input type="text" name="name" id="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+
+        <label for="amount">kiekis:</label><br>
+        <input type="number" name="amount" id="amount" step="0.01" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>">
+        <select name="unit" >
+            <% if(typeof units != 'undefined') { %>
+                <% units.forEach(function(unit) {  %> 
+                    <option value="<%=unit.id%>"><%=unit.name%></option> 
+                <% }) %>
+            <% } %>  
+        </select><br>
+
+        <label for="price">kaina:</label><br>
+        <input type="number" name="price" id="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>"><br>
+
+        <label for="limit">limitas:</label><br>
+        <input type="number" name="limit" id="limit" step="0.01" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>"><br>
+
+        <input type="checkbox" name="checkLimit" id="checkLimit" value="1">
+        <label for="checkLimit">tikrinti limita</label><br><br>
+
+        <label for="supplier">tiekejas:</label><br>
+        <select name="supplier" id="supplier">
+            <option value="">-</option> 
+            <% if(typeof suppliers != 'undefined') { %>
+                <% suppliers.forEach(function(supplier) {  %> 
+                    <option value="<%=supplier.id%>"><%=supplier.name%></option> 
+                <% }) %>
+            <% } %>  
+        </select><br>
+
+        <label for="materialType">tipas:</label><br>
+        <select name="materialType" id="materialType">
+            <option value="1">molis</option> 
+            <option value="2">glazūra</option> 
+        </select><br><br>
+        <input type="submit" value="išsaugoti">
+</form><br> 
+    
+    <% if(typeof errorsList != 'undefined') { %>
+        <% errorsList.forEach(function(error) {  %> 
+            <h1> 
+                <%= error.message %>  
+            </h1>
+        <% }) %>
+    <% } %>  

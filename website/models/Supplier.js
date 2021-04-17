@@ -12,11 +12,6 @@ exports.getAll = function(){
     return mysql.query(sql);
 }
 
-exports.getAllCompact = function(){
-    var sql = "SELECT `id`, `name` FROM `supplier`";
-    return mysql.query(sql);
-}
-
 exports.save = function(name, email, phone){
 
     let sql = "INSERT INTO `supplier` (`name`, `email`, `phone`) VALUES ( ? , ? , ? )";

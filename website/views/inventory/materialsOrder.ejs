@@ -1,0 +1,69 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<style>
+ .inputRow{
+    display: grid;
+    grid-template-columns: 1fr 3fr 2fr 2fr 1fr;
+    margin-bottom: 12px;
+ }
+
+ #inputRows{
+     width: 450px;
+     margin-left: auto;
+     margin-right: auto;
+ }
+
+ .grid-item{
+     padding-left: 5px;
+     padding-right: 5px;
+ }
+</style>
+
+<% if(typeof materials != 'undefined') { %>
+    <% if (materials.length > 0) { %>
+        <form method="POST" action="/inventory/submitMaterialsOrder" onsubmit="return submitForm(this);">
+        <hr> 
+         <div id="inputRows">
+            <div class="inputRow">
+                <div class="grid-item"><h4>Id</h4></div>
+                <div class="grid-item"><h4>pavadinimas</h4></div>
+                <div class="grid-item"><h4>likęs kiekis</h4></div>
+                <div class="grid-item"><h4>užsakymo kiekis</h4></div>
+                <div class="grid-item"></div>
+            </div>
+            <hr>
+        <% materials.forEach(function(material) {  %> 
+                <div class="inputRow">
+                    <div class="grid-item"><%=material.id%>
+                        <input type="number" name="id[]" value="<%=material.id%>" hidden>
+                        <input type="number" name="price[]" value="<%=material.price%>" hidden>
+                    </div>
+                    <div class="grid-item"><%= material.name %></div>
+                    <div class="grid-item"><%= material.amount %></div>
+                    <div class="grid-item"><input type="number" name="orderAmount[]" min="1" max="9999" step="0.01" required></div>
+                    <div class="grid-item"><button type="button" class="remove">X</button></div>
+                </div>
+               
+        <% }) %>
+        <br><button style="float: right;" >Pateikti</button>
+        </div> 
+        </form>
+    <%} else { %>
+        <p> visų medžiagų užtenka </p>
+    <% } %>
+<% } %>
+
+
+<script>
+    $(document).ready(function () {
+        var $rows = $("#inputRows");
+
+        $rows.delegate( '.remove' ,'click', function(){
+            var $row = $(this).parent('div').parent('div');
+            $row.remove();
+        });
+    })
+
+    function submitForm() {
+    return confirm('patvirtinti užsakymą.');
+    }
+</script>

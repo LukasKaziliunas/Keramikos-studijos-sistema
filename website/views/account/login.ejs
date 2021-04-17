@@ -1,23 +1,29 @@
-<form method="POST" action="/account/login" enctype="application/x-www-form-urlencoded">
-
-    <fieldset>
-        <legend>prisijungimo forma</legend>
-
-    <label for="email">el. paštas:</label><br>
-    <input id="email" type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
-
-    <label for="psw">slaptažodis:</label><br>
-    <input id="psw" type="password" name="password"><br>
-
-    <br><input type="submit" value="prisijungti">
-
-    </fieldset>
-</form>
-
-<% if(typeof errorsList != 'undefined') { %>
-    <% errorsList.forEach(function(error) {  %> 
-        <h1> 
-            <%= error.message %>  
-        </h1>
-    <% }) %>
-<% } %>  
+<link href="/static/stylesheets/signin.css" rel="stylesheet">
+<body class="text-center">
+    
+    <main class="form-signin">
+      <form method="POST" action="/account/login" enctype="application/x-www-form-urlencoded">
+        
+        <h1 class="h3 mb-3 fw-normal">Prisijungimo forma</h1>
+    
+        <div class="form-floating">
+          <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email" value="<%if(typeof fields.email != 'undefined'){%><%=fields.email%><%}%>">
+          <label for="floatingInput">El. paštas</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control" id="floatingPassword" style="margin-bottom: 10px;" placeholder="Password" name="password" value="<%if(typeof fields.password != 'undefined'){%><%=fields.password%><%}%>">
+          <label for="floatingPassword">Slaptažodis</label>
+        </div>
+    
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Prisijungti</button>
+      </form>
+      <br>
+      <% if(typeof errorsList != 'undefined') { %>
+        <% errorsList.forEach(function(error) {  %> 
+            <div class="alert alert-danger" role="alert">
+                <%= error.message %>
+              </div><br>
+        <% }) %>
+    <% } %>  
+    </main>
+</body>

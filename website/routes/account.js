@@ -44,7 +44,7 @@ router.post('/login', [
                         } else {
                             delete user.password; // is naudotojo objekto išimu jo slaptazodi
                             try {
-                                const accessToken = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, { expiresIn: '45min' })
+                                const accessToken = jwt.sign(user, process.env.ACCESS_TOCKEN_SECRET, { expiresIn: '2h' })
                                 createCookie(res, "access_token", accessToken, null)
                                 return res.redirect('/');
                             } catch (err) {

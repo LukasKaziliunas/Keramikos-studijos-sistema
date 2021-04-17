@@ -12,3 +12,9 @@ exports.save = function(sum, city, address, state, orderType, deliverytype){
     sql = format(sql, inserts);
     return mysql.insert(sql);
 }
+
+exports.getById = function(id){
+    var sql = "SELECT * FROM `order` WHERE `id` = ?";
+    sql = format(sql, id);
+    return mysql.getOne(sql);
+}

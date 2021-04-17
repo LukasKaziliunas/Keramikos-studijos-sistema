@@ -17,10 +17,11 @@ exports.getTypes = function(){
     return mysql.query(sql);
 }
 
-exports.save = function(name, price, description, type){
-    let sql = "INSERT INTO `pottery` (`price`, `description`, `name`, `type`, `dateOfManufacture`, `fk_PotteryPurchase`, `fk_Worker`, `state`) VALUES ( ?, ?, ?, ?, DATE(NOW()), NULL, '1', '1');";
-    var inserts = [price, description, name, type];
+exports.save = function(name, price, amount, description, type, showInGalery){
+    let sql = "INSERT INTO `pottery` (`price`, `description`, `name`, `amount`, `showInGalery`, `potteryType`, `fk_Worker`) VALUES ( ?, ?, ?, ?, ?, ?, '1');";
+    var inserts = [price, description, name, amount, showInGalery, type];
     sql = format(sql, inserts);
+    console.log(sql);
     return mysql.insert(sql);
 }
 

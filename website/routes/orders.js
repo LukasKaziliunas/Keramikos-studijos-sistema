@@ -91,16 +91,7 @@ router.post('/purchase', authenticateClient, function(req, res, next) {
 
 });
 
-router.get('/order', authenticateClient, function(req, res, next) {
-  res.send('order view');
-});
-
-router.get('/orders', function(req, res, next) {
-  res.send('orders list');
-});
-
 module.exports = router;
-
 
 function calculateTotal(pricesArray)
 {

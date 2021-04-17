@@ -1,21 +1,31 @@
-<link rel="stylesheet" href="/static/stylesheets/gallery.css">
+<link rel="stylesheet" href="/static/stylesheets/gallery.css">  
 
-<div class="grid-container">
+<div class="container-fluid">
+    <div class="row">
 
-    <% if(typeof items != 'undefined') { %>
-        <% items.forEach(function(item) {  %> 
-            <div class="grid-item">
-                <div class="picture">
-                    <img src=<%=item.path%>>
-                </div>
-                <div class="info">
-                    <%=item.name%> <br>
-                    <%=item.price%> <br>
-                   <a href="/clients/potteryinfo/<%=item.id%>"> <button>atidaryti</button> </a>
-                </div>
-            </div>
-        <% }) %>
-    <% } %>  
-    
-  </div>
+        <% if(typeof items != 'undefined') { %>
+            <% items.forEach(function(item) {  %> 
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <div class="card mb-4 shadow-sm" style="width: 20rem; margin: 0 auto 0 auto;">
+                        <div class="my-img-container" style="width: 320px; height: 240px">
+                            <img src="<%=item.path%>" class="img-responsive" width="320px" height="240px">
+                        </div>
+                        <div class="card-body">
+                          <p class="card-text"><%=item.name%></p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <a href="/clients/potteryinfo/<%=item.id%>"><button type="button" class="btn btn-sm btn-outline-secondary">peržiūrėti</button></a>
+                              <button type="button" class="btn btn-sm btn-outline-secondary">į krepšelį <i class="fas fa-shopping-basket"></i></button>
+                            </div>
+                            <h3><%=item.price%> &euro;</h3> 
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+            <% }) %>
+        <% } %>  
+
+    </div>
+</div>
+
   

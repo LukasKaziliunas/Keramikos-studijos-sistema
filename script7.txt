@@ -1,0 +1,268 @@
+#@(#) script.ddl
+
+DROP TABLE IF EXISTS PotteryOrder;
+DROP TABLE IF EXISTS purchasedPottery;
+DROP TABLE IF EXISTS PoterryMaterial;
+DROP TABLE IF EXISTS Photo;
+DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS Pottery;
+DROP TABLE IF EXISTS `Order`;
+DROP TABLE IF EXISTS Worker;
+DROP TABLE IF EXISTS MaterialOrder;
+DROP TABLE IF EXISTS Client;
+DROP TABLE IF EXISTS `User`;
+DROP TABLE IF EXISTS Material;
+DROP TABLE IF EXISTS UserType;
+DROP TABLE IF EXISTS units;
+DROP TABLE IF EXISTS PotteryType;
+DROP TABLE IF EXISTS PaymentType;
+DROP TABLE IF EXISTS OrderType;
+DROP TABLE IF EXISTS OrderState;
+DROP TABLE IF EXISTS MaterialType;
+DROP TABLE IF EXISTS DeliveryType;
+DROP TABLE IF EXISTS Supplier;
+CREATE TABLE Supplier
+(
+	name varchar (255),
+	email varchar (255),
+	phone varchar (255),
+	id integer AUTO_INCREMENT,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE DeliveryType
+(
+	id integer,
+	name char (18) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO DeliveryType(id, name) VALUES(1, 'kurjeris');
+INSERT INTO DeliveryType(id, name) VALUES(2, 'atsiimti studijoje');
+
+CREATE TABLE MaterialType
+(
+	id integer,
+	name char (7) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO MaterialType(id, name) VALUES(1, 'molis');
+INSERT INTO MaterialType(id, name) VALUES(2, 'glazūra');
+
+CREATE TABLE OrderState
+(
+	id integer,
+	name char (9) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO OrderState(id, name) VALUES(1, 'atšauktas');
+INSERT INTO OrderState(id, name) VALUES(2, 'baigtas');
+INSERT INTO OrderState(id, name) VALUES(3, 'naujas');
+
+CREATE TABLE OrderType
+(
+	id integer,
+	name char (10) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO OrderType(id, name) VALUES(1, 'individual');
+INSERT INTO OrderType(id, name) VALUES(2, 'purchase');
+
+CREATE TABLE PaymentType
+(
+	id integer,
+	name char (8) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO PaymentType(id, name) VALUES(1, 'cash');
+INSERT INTO PaymentType(id, name) VALUES(2, 'paypal');
+INSERT INTO PaymentType(id, name) VALUES(3, 'swedbank');
+
+CREATE TABLE PotteryType
+(
+	id integer,
+	name char (9) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO PotteryType(id, name) VALUES(1, 'vaza');
+INSERT INTO PotteryType(id, name) VALUES(2, 'lėkštė');
+INSERT INTO PotteryType(id, name) VALUES(3, 'dėžutė');
+INSERT INTO PotteryType(id, name) VALUES(4, 'žvakidė');
+INSERT INTO PotteryType(id, name) VALUES(5, 'vazonas');
+INSERT INTO PotteryType(id, name) VALUES(6, 'puodelis');
+INSERT INTO PotteryType(id, name) VALUES(7, 'dubenėlis');
+INSERT INTO PotteryType(id, name) VALUES(8, 'skulptūra');
+
+CREATE TABLE units
+(
+	id integer,
+	name char (2) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO units(id, name) VALUES(1, 'kg');
+INSERT INTO units(id, name) VALUES(2, 'g');
+INSERT INTO units(id, name) VALUES(3, 'l');
+
+CREATE TABLE UserType
+(
+	id integer,
+	name char (6) NOT NULL,
+	PRIMARY KEY(id)
+);
+INSERT INTO UserType(id, name) VALUES(1, 'client');
+INSERT INTO UserType(id, name) VALUES(2, 'worker');
+INSERT INTO UserType(id, name) VALUES(3, 'admin');
+
+CREATE TABLE Material
+(
+	name varchar (255),
+	amount double,
+	price double,
+	`limit` double,
+	checkLimit boolean,
+	units integer,
+	materialType integer,
+	id integer AUTO_INCREMENT,
+	fk_Supplier integer NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY(materialType) REFERENCES MaterialType (id),
+	FOREIGN KEY(units) REFERENCES units (id),
+	CONSTRAINT provides FOREIGN KEY(fk_Supplier) REFERENCES Supplier (id) ON DELETE CASCADE
+);
+
+CREATE TABLE `User`
+(
+	email varchar (255),
+	password varchar (255),
+	userType integer,
+	id integer AUTO_INCREMENT,
+	PRIMARY KEY(id),
+	FOREIGN KEY(userType) REFERENCES UserType (id)
+);
+
+CREATE TABLE Client
+(
+	phone varchar (255),
+	name varchar (255),
+	lastname varchar (255),
+	id integer AUTO_INCREMENT,
+	fk_User integer NOT NULL,
+	PRIMARY KEY(id),
+	UNIQUE(fk_User),
+	CONSTRAINT is5 FOREIGN KEY(fk_User) REFERENCES `User` (id) ON DELETE CASCADE
+);
+
+CREATE TABLE MaterialOrder
+(
+	amount double,
+	price double,
+	date date,
+	units integer,
+	id integer AUTO_INCREMENT,
+	fk_Material integer NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY(units) REFERENCES units (id),
+	CONSTRAINT included FOREIGN KEY(fk_Material) REFERENCES Material (id)
+);
+
+CREATE TABLE Worker
+(
+	name varchar (255),
+	id integer AUTO_INCREMENT,
+	fk_User integer NOT NULL,
+	PRIMARY KEY(id),
+	UNIQUE(fk_User),
+	CONSTRAINT is4 FOREIGN KEY(fk_User) REFERENCES User (id) ON DELETE CASCADE
+);
+
+CREATE TABLE `Order`
+(
+	date date,
+	sum double,
+	city varchar (255),
+	address varchar (255),
+	postalCode varchar (255),
+	state integer,
+	orderType integer,
+	deliveryType integer,
+	id integer AUTO_INCREMENT,
+	fk_Client integer NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY(state) REFERENCES OrderState (id),
+	FOREIGN KEY(orderType) REFERENCES OrderType (id),
+	FOREIGN KEY(deliveryType) REFERENCES DeliveryType (id),
+	CONSTRAINT submits FOREIGN KEY(fk_Client) REFERENCES Client (id)
+);
+
+CREATE TABLE Pottery
+(
+	price double,
+	description text,
+	name varchar (255),
+	amount integer,
+	showInGalery boolean,
+	potteryType integer,
+	id integer AUTO_INCREMENT,
+	fk_Worker integer NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY(potteryType) REFERENCES PotteryType (id),
+	CONSTRAINT creates FOREIGN KEY(fk_Worker) REFERENCES Worker (id)
+);
+
+CREATE TABLE Payment
+(
+	sum double,
+	date date,
+	payer varchar (255),
+	paymentType integer,
+	id integer AUTO_INCREMENT,
+	fk_Order integer NOT NULL,
+	PRIMARY KEY(id),
+	UNIQUE(fk_Order),
+	FOREIGN KEY(paymentType) REFERENCES PaymentType (id), 
+	CONSTRAINT apmokamas FOREIGN KEY(fk_Order) REFERENCES `Order` (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Photo
+(
+	path varchar (255),
+	id integer AUTO_INCREMENT,
+	fk_Pottery integer NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT have FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE
+);
+
+CREATE TABLE PoterryMaterial
+(
+	amount double,
+	id integer AUTO_INCREMENT,
+	fk_Pottery integer NOT NULL,
+	fk_Material integer NOT NULL,
+	PRIMARY KEY(id),
+	FOREIGN KEY(units) REFERENCES units (id),
+	CONSTRAINT madeof FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE,
+	CONSTRAINT belongs FOREIGN KEY(fk_Material) REFERENCES Material (id) ON DELETE CASCADE
+);
+
+CREATE TABLE purchasedPottery
+(
+	amount integer,
+	id integer AUTO_INCREMENT,
+	fk_Order integer NOT NULL,
+	fk_Pottery integer NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT belongs2 FOREIGN KEY(fk_Order) REFERENCES `Order` (id) ON DELETE CASCADE,
+	CONSTRAINT included2 FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE
+);
+
+CREATE TABLE PotteryOrder
+(
+	comment text,
+	potteryType integer,
+	id integer AUTO_INCREMENT,
+	fk_Order integer NOT NULL,
+	fk_Photo integer,
+	PRIMARY KEY(id),
+	FOREIGN KEY(potteryType) REFERENCES PotteryType (id),
+	CONSTRAINT is_ FOREIGN KEY(fk_Order) REFERENCES `Order` (id),
+	CONSTRAINT have FOREIGN KEY(fk_Photo) REFERENCES Photo (id)
+);

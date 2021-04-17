@@ -63,7 +63,7 @@ function connect() {
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'keramika3',
+    database: 'keramika7',
     multipleStatements: true
   });
 

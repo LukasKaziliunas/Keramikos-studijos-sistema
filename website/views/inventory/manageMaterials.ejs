@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="/static/stylesheets/materials.css">
+
+<button onclick=openMaterialCreateForm() >Pridėti naują medžiagą</button>
+<button onclick=CheckMaterialsBalance() >Tikrinti medžiagų likutį</button>
+
+<h2>Molis</h2>
+<table style="width: 500px;">
+    <tr>
+        <th>Id</th>
+        <th>pavadinimas</th>
+        <th>kiekis</th>
+    </tr>
+    <% if(typeof clays != 'undefined') { %>
+        <% clays.forEach(function(clay) {  %> 
+            <tr>
+                <td><%= clay.id %></td>
+                <td><%= clay.name %></td>
+                <td><%= clay.amount %></td>
+              </tr>
+        <% }) %>
+    <% } %> 
+</table>
+<br>
+<h2>Glazūros</h2>
+<table style="width: 500px;">
+    <tr>
+        <th>Id</th>
+        <th>pavadinimas</th>
+        <th>kiekis</th>
+    </tr>
+    <% if(typeof glazes != 'undefined') { %>
+        <% glazes.forEach(function(glaze) {  %> 
+            <tr>
+                <td><%= glaze.id %></td>
+                <td><%= glaze.name %></td>
+                <td><%= glaze.amount %></td>
+              </tr>
+        <% }) %>
+    <% } %> 
+</table>
+
+<script>
+    function openMaterialCreateForm()
+    {
+        window.location.replace("/inventory/materialCreateForm");
+    }
+
+    function CheckMaterialsBalance()
+    {
+        window.location.replace("/inventory/materialsOrder");
+    }
+</script>

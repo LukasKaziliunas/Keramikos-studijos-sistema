@@ -1,35 +1,51 @@
-   <form method="POST" action="/account/register" enctype="application/x-www-form-urlencoded">
+<link href="/static/stylesheets/signin.css" rel="stylesheet">
 
-        <fieldset>
-            <legend>Registracijos forma</legend>
-
-        <label for="name">vardas:</label><br>
-        <input id="name" type="name" name="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
-
-        <label for="lastname">pavardė:</label><br>
-        <input id="lastname" type="lastname" name="lastname" value="<% if(typeof fields.lastname != 'undefined') { %><%=fields.lastname%><% } %>"><br>
-
-        <label for="phone">telefonas:</label><br>
-        <input id="phone" type="phone" name="phone" value="<% if(typeof fields.phone != 'undefined') { %><%=fields.phone%><% } %>"><br>
-
-        <label for="email">el. paštas:</label><br>
-        <input id="email" type="text" name="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>"><br>
-
-        <label for="psw">slaptažodis:</label><br>
-        <input id="psw" type="password" name="password"><br>
-
-        <label for="psw2">pakartoti slaptažodį:</label><br>
-        <input id="psw2" type="password" name="password2"><br>
-
-        <br><input type="submit" value="registruotis">
-
-        </fieldset>
-    </form><br> 
+<body class="text-center">
     
-    <% if(typeof errorsList != 'undefined') { %>
+    <main class="form-signin">
+      <form method="POST" action="/account/register" enctype="application/x-www-form-urlencoded">
+        
+        <h1 class="h3 mb-3 fw-normal">Registracijos forma</h1>
+    
+        <div class="form-floating">
+          <input type="text" class="form-control" id="floatingInput" placeholder="vardas" name="name" value="<%if(typeof fields.name != 'undefined'){%><%=fields.name%><%}%>">
+          <label for="floatingInput">Vardas</label>
+        </div>
+
+        <div class="form-floating">
+            <input type="text" class="form-control" id="floatingInput" placeholder="pavardė" name="lastname" value="<%if(typeof fields.lastname != 'undefined'){%><%=fields.lastname%><%}%>">
+            <label for="floatingInput">Pavardė</label>
+          </div>
+
+          <div class="form-floating">
+            <input type="phone" class="form-control" id="floatingInput" placeholder="+370xxxxxxxx" name="phone" value="<%if(typeof fields.phone != 'undefined'){%><%=fields.phone%><%}%>">
+            <label for="floatingInput">Telefono numeris</label>
+          </div>
+
+          <div class="form-floating">
+            <input type="email" class="form-control" id="floatingInput" placeholder="adresas@pvz.com" name="email" value="<%if(typeof fields.email != 'undefined'){%><%=fields.email%><%}%>">
+            <label for="floatingInput">El. paštas</label>
+          </div>
+
+          <div class="form-floating">
+            <input type="password" class="form-control" id="floatingInput" placeholder="min 8 simboliai" name="password">
+            <label for="floatingInput">Slaptažodis</label>
+          </div>
+              
+          <div class="form-floating">
+            <input type="password" class="form-control" id="floatingInput" placeholder="pakartoti slaptažodį" name="password2">
+            <label for="floatingInput">Pakartoti slaptažodį</label>
+          </div>
+    
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Registruotis</button>
+      </form>
+      <br>
+      <% if(typeof errorsList != 'undefined') { %>
         <% errorsList.forEach(function(error) {  %> 
-            <h1> 
-                <%= error.message %>  
-            </h1>
+            <div class="alert alert-danger" role="alert">
+                <%= error.message %>
+              </div>
         <% }) %>
     <% } %>  
+    </main>
+</body>
