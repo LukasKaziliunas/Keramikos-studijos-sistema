@@ -1,66 +1,100 @@
 <link rel="stylesheet" href="/static/stylesheets/potteryinfo.css">
 <script src="/static/javascripts/basket.js"></script>
 
-<div id="photos-container">
+<div class="container-fluid">
+    <div class="row">
 
-    <section>
-        <div class="container">
-            <div class="carousel">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-5 col-sm-12">
 
-                <% if(typeof photos != 'undefined') { %>
-                    <% photos.forEach(function(photo) {  %> 
-                            <input type="radio" name="slides" id="slide-<%=photo.id%>">
-                    <% }) %>
-                <% } %> 
+            
+                <section>
+                    
+                        <div class="carousel">
+            
+                            <% if(typeof photos != 'undefined') { %>
+                                <% photos.forEach(function(photo) {  %> 
+                                        <input type="radio" name="slides" id="slide-<%=photo.id%>">
+                                <% }) %>
+                            <% } %> 
+            
+                            <ul class="carousel__slides">
+                                
+                                <% if(typeof photos != 'undefined') { %>
+                                    <% photos.forEach(function(photo) {  %> 
+                                        <li class="carousel__slide">
+                                            <figure>
+                                                <div>
+                                                    <img src="<%=photo.path%>" >
+                                                </div>
+                                            </figure>
+                                        </li>
+                                    <% }) %>
+                                <% } %> 
+                                
+                            </ul>    
+                            <ul class="carousel__thumbnails">
+                                
+                                <% if(typeof photos != 'undefined') { %>
+                                    <% photos.forEach(function(photo) {  %> 
+                                        <li>
+                                            <label for="slide-<%=photo.id%>"><img src="<%=photo.path%>"></label>
+                                        </li>
+                                    <% }) %>
+                                <% } %> 
+                               
+                            </ul>
+                        </div>
+                    
+                </section>
+            
 
-                <ul class="carousel__slides">
-                    
-                    <% if(typeof photos != 'undefined') { %>
-                        <% photos.forEach(function(photo) {  %> 
-                            <li class="carousel__slide">
-                                <figure>
-                                    <div>
-                                        <img src="<%=photo.path%>" >
-                                    </div>
-                                </figure>
-                            </li>
-                        <% }) %>
-                    <% } %> 
-                    
-                </ul>    
-                <ul class="carousel__thumbnails">
-                    
-                    <% if(typeof photos != 'undefined') { %>
-                        <% photos.forEach(function(photo) {  %> 
-                            <li>
-                                <label for="slide-<%=photo.id%>"><img src="<%=photo.path%>"></label>
-                            </li>
-                        <% }) %>
-                    <% } %> 
-                   
-                </ul>
-            </div>
         </div>
-    </section>
 
+        <div class="col-lg-3 col-sm-12">
+
+            <div class="shadow p-3 mb-5 bg-body rounded" style="height: 500px;">
+                <p>
+                    <b>Pavadinimas:</b>  <span><%=pottery.name%></span>
+                </p>
+                
+                <p>
+                    <span><%=pottery.description%></span>
+                </p>
+                
+                <p> 
+                    <b>Kaina:</b> <%=pottery.price%> &euro;  
+                </p>
+
+                <p> 
+                    <b>kiekis studijoje:</b> <span id="span-amount"><%=pottery.amount%></span>  
+                </p>
+                <% if( pottery.amount == 0 ) { %>
+                    <button type="button" disabled id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="float: right; margin-right: 15px;">į krepšelį <i class="fas fa-shopping-basket"></i></button><br><br>
+                <% } else {%>
+                    <div id="button-box" style="float: right; margin-right: 15px;">
+                        <input type="number" id="quantity" min="1" max="<%=pottery.amount%>" value="1"> 
+                        <button type="button" id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="margin-bottom: 6px" >į krepšelį <i class="fas fa-shopping-basket"></i></button>
+                    </div><br><br>
+                    
+                <% } %> 
+                
+                <p id="message">
+                    <% if( pottery.amount == 0 ) { %>
+                        <div class="alert alert-info" role="alert">
+                            dirbinio studijoje nėra, galite pateikti individualų užsakymą, pagaminimo laikotarpis iki 1 mėn.
+                          </div>
+                    <% } %> 
+                </p>
+                
+                </div>
+            </div>
+
+        <div class="col-lg-2"></div>
+    </div>
 </div>
 
-<div id="info-container">
-
-<p>
-    <span>Pavadinimas: </span> <span><%=pottery.name%></span>
-</p>
-
-<p>
-    <span><%=pottery.description%></span>
-</p>
-
-<p> 
-    <span>Kaina: </span> <span><%=pottery.price%></span> 
-</p>
 
 
-<button type="button" id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>">Dėti į krepšelį</button>
-<p id="message"></p>
-</div>
+
 

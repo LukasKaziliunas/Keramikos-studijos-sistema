@@ -2,161 +2,67 @@
 <link rel="stylesheet" href="/static/stylesheets/basket.css">
 <script src="/static/javascripts/basket.js"></script>
 
-<form method="POST" action="/orders/orderConfirmForm" encType="multipart/form-data">
-    <div id="basketList">
-
         <div class="wrap cf">
            
             <div class="heading cf">
-              <h1>My Cart</h1>
-              <a href="#" class="continue">Continue Shopping</a>
+              <h1>Krepšelis</h1>
+              <a href="/clients/gallery" class="continue">Grįžti į galeriją</a>
             </div>
             <div class="cart">
         
               <ul class="cartWrap">
-                <li class="items odd">
-                  
-              <div class="infoWrap"> 
-                  <div class="cartSection">
-                    
-                    <p class="itemNumber">#QUE-007544-002</p>
-                    <h3>Item Name 1</h3>
-                  
-                     <p> <input type="text"  class="qty" placeholder="3"/> x $5.00</p>
-                  
-                    <p class="stockStatus"> In Stock</p>
-                  </div>  
-              
-                  
-                  <div class="prodTotal cartSection">
-                    <p>$15.00</p>
-                  </div>
-                        <div class="cartSection removeWrap">
-                     <a href="#" class="remove">x</a>
-                  </div>
+
+                <div id="basketList">
+
+
+
                 </div>
-                </li>
-                <li class="items even">
-                  
-                 <div class="infoWrap"> 
-                  <div class="cartSection">
-                   
-                  
-                    <p class="itemNumber">#QUE-007544-002</p>
-                    <h3>Item Name 1</h3>
-                  
-                     <p> <input type="text"  class="qty" placeholder="3"/> x $5.00</p>
-                  
-                    <p class="stockStatus"> In Stock</p>
-                  </div>  
-              
-                  
-                  <div class="prodTotal cartSection">
-                    <p>$15.00</p>
-                  </div>
-                        <div class="cartSection removeWrap">
-                     <a href="#" class="remove">x</a>
-                  </div>
-                </div>
-                </li>
-                
-                      <li class="items odd">
-                       <div class="infoWrap"> 
-                  <div class="cartSection">
-                      
-                  <img src="/static/images/1d3af6a7-9035-455a-b6ea-d5f6c47d700c.jpg" alt="" class="itemImg" />
-                    <p class="itemNumber">#QUE-007544-002</p>
-                    <h3>Item Name 1</h3>
-                  
-                     <p> <input type="text"  class="qty" placeholder="3"/> x $5.00</p>
-                  
-                    <p class="stockStatus out"> Out of Stock</p>
-                  </div>  
-              
-                  
-                  <div class="prodTotal cartSection">
-                    <p>$15.00</p>
-                  </div>
-                              <div class="cartSection removeWrap">
-                     <a href="#" class="remove">x</a>
-                  </div>
-                        </div>
-                </li>
-                <li class="items even">
-                 <div class="infoWrap"> 
-                  <div class="cartSection info">
-                       
-                  <img src="http://lorempixel.com/output/technics-q-c-300-300-4.jpg" alt="" class="itemImg" />
-                    <p class="itemNumber">#QUE-007544-002</p>
-                    <h3>Item Name 1</h3>
-                  
-                    <p> <input type="text"  class="qty" placeholder="3"/> x $5.00</p>
-                  
-                    <p class="stockStatus"> In Stock</p>
-                    
-                  </div>  
-              
-                  
-                  <div class="prodTotal cartSection">
-                    <p>$15.00</p>
-                  </div>
-              
-                      <div class="cartSection removeWrap">
-                     <a href="#" class="remove">x</a>
-                  </div>
-                   </div>
-                </li>
-                
-                
-                <!--<li class="items even">Item 2</li>-->
            
               </ul>
             </div>
             
-            
             <div class="subtotal cf">
               <ul>
-                <li class="totalRow"><span class="label">Subtotal</span><span class="value">$35.00</span></li>
-                
-                    <li class="totalRow"><span class="label">Shipping</span><span class="value">$5.00</span></li>
-                
-                      <li class="totalRow"><span class="label">Tax</span><span class="value">$4.00</span></li>
-                      <li class="totalRow final"><span class="label">Total</span><span class="value">$44.00</span></li>
-                <li class="totalRow"><a href="#" class="btn continue">Checkout</a></li>
+                      <li class="totalRow final"><span class="label">Suma</span><span class="value" id="totalValue"></span> &euro; </li>
+                <li class="totalRow"><a href="#" onclick="submitOrder()" class="btn continue">Pateikti</a></li>
               </ul>
             </div>
           </div>
 
     </div>
-    <input type="number" value="3" name="orderType" hidden>
-    <div id="submit-button">
-
-    </div>
-
-</form>
 
 <script>
     $(document).ready(function() {
+      
         let basketItems = localStorage.getItem('basketItems');
         basketItems = JSON.parse(basketItems)
+        
         if(basketItems != null){
+          for(let i = 0; i<basketItems.length;i++)
+          {
+            let itemPrice = basketItems[i].price;
+            let itemQty = basketItems[i].quantity;
+            let itemTotal = itemPrice * itemQty;
+            basketItems[i].total = itemTotal;
+          }
+
             $("#myTemplate").tmpl(basketItems).appendTo("#basketList");  
-            let submitBtnDiv = document.getElementById("submit-button");
-            submitBtnDiv.innerHTML = '<button style="float: right;" type="submit">kurti užsakymą</button>'; 
+            
+            calculateTotal();
         }
 
 
         // Remove Items From Cart
-$('a.remove').click(function(){
-  event.preventDefault();
-  $( this ).parent().parent().parent().hide( 400 );
+      $('a.remove').click(function(){
+        event.preventDefault();
+      $( this ).parent().parent().parent().hide( 400 );
  
-})
+      })
 
-// Just for testing, show all items
-  $('a.btn.continue').click(function(){
-    $('li.items').show(400);
-  })
+      // Just for testing, show all items
+      $('a.btn.continue').click(function(){
+        $('li.items').show(400);
+      })
 
     });
 
@@ -164,24 +70,26 @@ $('a.remove').click(function(){
 
 <script id="myTemplate" type="text/x-jquery-tmpl">
     
+  <li class="items odd">
+    <div class="infoWrap"> 
+      <div class="cartSection">
+        
+        <img src="${photo}" class="itemImg" />
+        <p class="itemNumber">#id${id}</p>
+        <h3>${name}</h3>
+    
+          <p> <input type="number" id="itemQuantity-${id}"  class="qty" value="${quantity}" min="1" max="${inStock}" oninput="updateItemTotal(${id}, ${price}, 'itemQuantity-${id}', 'itemTotal-${id}')"  /> x ${price} &euro; </p>
+          
+      </div>  
+
+    
+      <div class="prodTotal cartSection">
+        <p> <span id="itemTotal-${id}" class="itemsTotals" >${total}</span> &euro; </p>
+      </div>
+        <div class="cartSection removeWrap">
+          <a class="remove" onclick=remove_from_basket(${id})>x</a>
+        </div>
+    </div>
+  </li>
 
 </script>
-
-<!--
-<div class="item">
-    <div class="left">
-        <img src="${photo}">
-    </div>
-
-    <div class="mid">
-        <h3>${name}</h3>
-        <p> ${price}</p>
-    </div>
-
-    <div class="right">
-        <button type="button" onclick=remove_from_basket(${id}) >Pašalinti</button>
-    </div>
-</div> 
-<input type="number" name="items" value="${id}" hidden>
-<input type="number" name="price" value="${price}" hidden>
-<hr>-->

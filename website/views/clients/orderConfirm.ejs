@@ -1,3 +1,7 @@
+
+
+
+<!--
 <h2>Suma: <%= price %> </h2>
 
 <form method="POST" action="/orders/createOrder" enctype="application/x-www-form-urlencoded">
@@ -39,16 +43,11 @@
         <% } %>  
 
     </fieldset>
-    <% if(typeof items != 'undefined') { %>
-        <% items.forEach(function(item) {  %> 
-            <input type="number" name="items" value="<%=item%>" hidden>
-        <% }) %>
-    <% } %>
+    
     <input type="number" name="orderType" value="<%=orderType%>" hidden>
     <input type="number" name="price" value="<%=price%>" hidden>
-    <% if(typeof potteryOrder != 'undefined') { %>
-        <input type="text" name="potteryOrder" value="<%=potteryOrder%>" hidden>
-    <% } %>
+
     <button type="submit">Patvirtinti</button>
 
 </form>
+-->

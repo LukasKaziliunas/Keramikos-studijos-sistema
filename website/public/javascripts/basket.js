@@ -4,15 +4,19 @@ function to_basket()
 {
     let basketItems = localStorage.getItem('basketItems');
     basketItems = JSON.parse(basketItems);
-
+    
     let potteryString = document.getElementById("tobasket_button").value;
+    let quantity = document.getElementById("quantity").value;
+    let inStock = document.getElementById("span-amount").innerHTML;
     let message = document.getElementById("message");
     var attributes = potteryString.split("&");
     let pottery = {
         id: attributes[0],
         name: attributes[1],
         price: attributes[2],
-        photo: attributes[3]
+        photo: attributes[3],
+        quantity: quantity,
+        inStock: inStock
     } 
 
     if(basketItems != null){
@@ -20,16 +24,22 @@ function to_basket()
         if(!checkIfInBasket(basketItems, pottery))  // does not contain this item yet
         {
             basketItems.push(pottery) 
-            message.innerHTML = "dirbinys pridėtas į krepšelį";
+            message.innerHTML = `<div class="alert alert-info" role="alert">
+                                    dirbinys pridėtas į krepšelį
+                                </div>`;
         }else
         {
-            alert("šis dirbinys jau yra jūsų krepšelyje")
+            message.innerHTML = `<div class="alert alert-danger" role="alert">
+                                    dirbinys jau yra krepšelyje  
+                                </div>`;
         }
         
     }else{
         basketItems =  [ pottery ]
         
-        message.innerHTML = "dirbinys pridėtas į krepšelį";
+        message.innerHTML = `<div class="alert alert-info" role="alert">
+                                    dirbinys pridėtas į krepšelį
+                                </div>`;
     }
 
     localStorage.setItem("basketItems", JSON.stringify(basketItems))
@@ -58,4 +68,44 @@ function remove_from_basket(id)
         localStorage.setItem("basketItems", JSON.stringify(basketItems))
     }
     window.location.reload();
+}
+
+function updateItemTotal(id, price, quantityInputId, itemTotalId){
+    let itemQuantity = document.getElementById(quantityInputId).value;
+    let itemTotalDOM = document.getElementById(itemTotalId);
+    let itemTotal = price * itemQuantity;
+    itemTotalDOM.innerHTML = itemTotal;
+    updateBasketItemQty(id, itemQuantity);
+}
+
+function updateBasketItemQty(id, qty){
+    let basketItems = localStorage.getItem('basketItems');
+    basketItems = JSON.parse(basketItems);
+    for(let i = 0; i < basketItems.length; i++)
+    {
+        if(basketItems[i].id == id){
+            basketItems[i].quantity = qty;
+        }
+    }
+    localStorage.setItem("basketItems", JSON.stringify(basketItems));
+    calculateTotal();
+}
+
+function calculateTotal()
+{
+    var itemsTotals = document.getElementsByClassName('itemsTotals');
+    var total = 0;
+    for (var i = 0; i < itemsTotals.length; ++i) {
+        var itemTotal = itemsTotals[i].innerHTML;
+        total += itemTotal * 1; //turn into a number and add to total
+    }
+    let totalValue = document.getElementById("totalValue");
+    totalValue.innerHTML = total;
+}
+
+function submitOrder(){
+    let totalValue = document.getElementById("totalValue");
+    let total = totalValue.innerHTML;
+    location.replace(`/orders/orderConfirmForm?total=${total}&orderType=2`)
+
 }

@@ -9,21 +9,19 @@ const Pottery = require("../models/Pottery");
 const PotteryOrder = require("../models/PotteryOrder");
 const { authenticateClient } = require("../tools/auth");
 
-router.post('/orderConfirmForm', authenticateClient, async function(req, res, next) {
+router.get('/orderConfirmForm', authenticateClient, async function(req, res, next) {
 
-  let orderType = req.body.orderType;
+  let orderType = req.query.orderType;
+  let total = req.query.total;
+  console.log(req.query);
   var deliveryTypesP = Order.getDeliveryTypes();
   var PaymentTypesP = Payment.getPaymentTypes();
 
-  if(orderType == 3)
+  if(orderType == 2)
   {
-    items = req.body.items
-    if (!Array.isArray(items))
-    items = [items];
-
-    let total = await calculateTotal(req.body.price)
+    
     Promise.all([deliveryTypesP, PaymentTypesP]).then(values => {
-      return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], items: items, orderType: req.body.orderType, price: total });
+      return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], orderType: orderType, price: total });
     }).catch(err => { console.log(err); return res.sendStatus(500) })
   }else if(orderType == 1)
   {

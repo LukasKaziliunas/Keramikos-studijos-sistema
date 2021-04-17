@@ -222,7 +222,9 @@ function savePotteryMaterials(materials, amounts, potteryId) {
         amounts = [amounts];
 
       for (let i = 0; i < materials.length; i++) {
-        PotteryMaterial.save(materials[i], amounts[i], potteryId).catch(err => { throw err });
+        PotteryMaterial.save(materials[i], amounts[i], potteryId)
+        .then(() => Material.subtractAmount(materials[i], amounts[i]))
+        .catch(err => { throw err });
       }
 
       resolve("materials saved")

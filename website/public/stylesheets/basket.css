@@ -147,7 +147,7 @@ img {
   font-size: .75em;
   padding: 1em;
   color: #fff;
-  background: #82ca9c;
+  background: #D8572A;
   font-weight: bold;
   border-radius: 50px;
   float: right;
@@ -255,7 +255,7 @@ img {
   font-size: 1.25em;
 }
 .cart .items .cartSection input.qty {
-  width: 2em;
+  width: 50px;
   text-align: center;
   font-size: 1em;
   padding: .25em;
@@ -306,42 +306,6 @@ a.remove:hover {
   background: #f30;
 }
 
-.promoCode {
-  border: 2px solid #efefef;
-  float: left;
-  width: 35%;
-  padding: 2%;
-}
-.promoCode label {
-  display: block;
-  width: 100%;
-  font-style: italic;
-  font-size: 1.15em;
-  margin-bottom: .5em;
-  letter-spacing: -.025em;
-}
-.promoCode input {
-  width: 85%;
-  font-size: 1em;
-  padding: .5em;
-  float: left;
-  border: 1px solid #dadada;
-}
-.promoCode input:active, .promoCode input:focus {
-  outline: 0;
-}
-.promoCode a.btn {
-  float: left;
-  width: 15%;
-  padding: .75em 0;
-  border-radius: 0 1em 1em 0;
-  text-align: center;
-  border: 1px solid #82ca9c;
-}
-.promoCode a.btn:hover {
-  border: 1px solid #f69679;
-  background: #f69679;
-}
 
 .btn:link, .btn:visited {
   text-decoration: none;
@@ -350,7 +314,7 @@ a.remove:hover {
   font-size: 1em;
   padding: 1em 3em;
   color: #fff;
-  background: #82ca9c;
+  background: #DB7C26;
   font-weight: bold;
   border-radius: 50px;
   float: right;

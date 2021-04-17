@@ -41,3 +41,12 @@ exports.getLackingMaterials = function(){
     let sql = "SELECT * FROM `material` WHERE `checkLimit` = true AND `amount` < `limit`";
     return mysql.query(sql);
 }
+
+exports.subtractAmount = function(materialId, amount)
+{
+   let sql = "UPDATE `material` SET `amount` = amount - ? WHERE `id` = ?;"
+   var inserts = [amount, materialId];
+   sql = format(sql, inserts);
+   console.log(sql);
+   return mysql.query(sql);
+}
