@@ -411,7 +411,8 @@ a.remove:hover {
     font-size: .75em;
   }
   .cart .items .cartSection.prodTotal, .cart .items .cartSection.removeWrap {
-    display: none;
+    display: block;
+    float: right;
   }
   .cart .items .cartSection .itemImg {
     width: 25%;

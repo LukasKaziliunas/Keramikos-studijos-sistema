@@ -46,7 +46,10 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
 
   let orderType = req.body.orderType;
   let orderId;
+  console.log(req.body);
+  return res.sendStatus(200);
 
+/*
   if(orderType == 3){  //purchase order
     let price = (req.body.price * 100).toFixed(2);
     let stripePublicKey = process.env.STRIPE_PUBLIC;
@@ -66,7 +69,7 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
   }else{
     return res.sendStatus(200)
   }
-
+*/
 });
 
 router.post('/purchase', authenticateClient, function(req, res, next) {
