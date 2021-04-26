@@ -1,9 +1,24 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Namai</a></li>
+    <li class="breadcrumb-item active"><a href="#">Galerija</a></li>
+  </ol>
+</nav>
+
 <link rel="stylesheet" href="/static/stylesheets/gallery.css">  
 
 <div class="container-fluid">
+  <p id="message">
+
+  </p>
     <div class="row">
 
         <% if(typeof items != 'undefined') { %>
+            <% if(items.length == 0) { %>
+              <div class="alert alert-info" role="alert">
+                šiuo metu dirbinių galerijoje nėra.
+              </div>
+            <% } %> 
             <% items.forEach(function(item) {  %> 
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="card mb-4 shadow-sm" style="width: 20rem; margin: 0 auto 0 auto;">
@@ -14,8 +29,8 @@
                           <p class="card-text"><%=item.name%></p>
                           <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                              <a href="/clients/potteryinfo/<%=item.id%>"><button type="button" class="btn btn-sm btn-outline-secondary">peržiūrėti</button></a>
-                              <button type="button" class="btn btn-sm btn-outline-secondary">į krepšelį <i class="fas fa-shopping-basket"></i></button>
+                              <a href="/clients/potteryinfo/<%=item.id%>"><button type="button" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" class="btn btn-sm btn-outline-secondary">peržiūrėti</button></a>
+                              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toBasket('<%=item.id%>')" id="basketButton-<%=item.id%>" <% if(item.amount == 0){%> disabled <% } %> >į krepšelį <i class="fas fa-shopping-basket"></i></button>
                             </div>
                             <h3><%=item.price%> &euro;</h3> 
                           </div>
@@ -28,4 +43,75 @@
     </div>
 </div>
 
+<script>
+    function toBasket(id)
+    {
+      fetch(`/inventory/getPottery/${id}`)
+      .then(response => response.json())
+      .then(data => 
+      {
+          addItemToBasket(data)
+      });
+    }
+
+    function addItemToBasket(itemData){
+
+      let basketItems = localStorage.getItem('basketItems');
+      basketItems = JSON.parse(basketItems);
+      let message = document.getElementById("message");
+    
+    let pottery = {
+        id: itemData.id,
+        name: itemData.name,
+        price: itemData.price,
+        photo: itemData.photo,
+        quantity: 1,
+        inStock: itemData.amount
+    } 
+
+    if(basketItems != null){
+        //array not empty
+        if(!checkIfInBasket(basketItems, pottery))  // does not contain this item yet
+        {
+            basketItems.push(pottery) 
+            message.innerHTML = `<div class="alert alert-info" role="alert">
+                                    dirbinys pridėtas į krepšelį
+                                </div>`;
+            setTimeout(clearMessage, 4000)
+        }else
+        {
+            message.innerHTML = `<div class="alert alert-danger" role="alert">
+                                    dirbinys jau yra krepšelyje  
+                                </div>`;
+            setTimeout(clearMessage, 4000)
+        }
+        
+    }else{
+        basketItems =  [ pottery ]
+        
+        message.innerHTML = `<div class="alert alert-info" role="alert">
+                                    dirbinys pridėtas į krepšelį
+                                </div>`;
+        setTimeout(clearMessage, 4000)
+    }
+
+    localStorage.setItem("basketItems", JSON.stringify(basketItems))
+    }
+
+    function checkIfInBasket(basket, pottery)
+    {
+      for(let i = 0 ; i<basket.length ; i++)
+      {
+        if(basket[i].id == pottery.id)
+        return true
+      }
+    return false;
+    }
+
+    function clearMessage(){
+      let message = document.getElementById("message");
+      message.innerHTML = '';
+    }
+
+</script>
   

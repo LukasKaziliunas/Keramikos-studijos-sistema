@@ -6,3 +6,4 @@ npm install jsonwebtoken dotenv
 npm i express-fileupload
 npm i uuid
 npm install nodemailer
+npm install html-pdf

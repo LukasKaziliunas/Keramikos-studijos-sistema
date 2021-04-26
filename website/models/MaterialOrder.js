@@ -9,13 +9,13 @@ exports.save = function(amount, price, orderId, materialId){
     return mysql.insert(sql);
 }
 
-exports.saveMultiple = function(amounts, prices, materialIds, orderId,){
+exports.saveMultiple = function(amounts, prices, materialIds){
 
-    var template = "(?, ?, ?, ?)";
+    var template = "(?, ?, DATE(NOW()), ?)";
     var allValues = "";
     // ads up all values into sql string (..),(..),(..)...
     for(let i = 0; i < materialIds.length; i++){
-        var inserts = [amounts[i], (amounts[i] * prices[i]).toFixed(2), orderId, materialIds[i]];
+        var inserts = [amounts[i], (amounts[i] * prices[i]).toFixed(2), materialIds[i]];
         var sqlValues = format(template, inserts);
         allValues = allValues + sqlValues;
         //ads "," if its not the last object
@@ -23,7 +23,7 @@ exports.saveMultiple = function(amounts, prices, materialIds, orderId,){
             allValues = allValues + ",";
         }
     }
-    let sql = "INSERT INTO `materialorder` (`amount`, `price`, `fk_Order`, `fk_Material`) VALUES ";
+    let sql = "INSERT INTO `materialorder` (`amount`, `price`, `date`, `fk_Material`) VALUES ";
     sql = sql + allValues;
     return mysql.insert(sql);
 }

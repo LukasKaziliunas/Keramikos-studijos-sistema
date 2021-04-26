@@ -4,10 +4,7 @@
         "address": "Petraičio g. 5",
         "postalCode": "123456",
         "orderType": 2,
-        "deliveryType": 1
-    },
-
-    "ContactDetails":{
+        "deliveryType": 1,
         "name": "Jonas",
         "lastname": "Jonaitis",
         "phone": "+37068956987"

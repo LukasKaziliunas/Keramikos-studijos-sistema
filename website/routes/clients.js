@@ -3,7 +3,7 @@ var router = express.Router();
 const Pottery = require("../models/Pottery");
 const Photo = require("../models/Photo");
 const Material = require("../models/Material");
-const { authenticateClient } = require("../tools/auth");
+const { authenticateClient, isLoggedIn } = require("../tools/auth");
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -13,22 +13,29 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/basket', authenticateClient, function (req, res, next) {
-  return res.render('clients/basket', { layout: './layouts/clientLayout', auth: true });
+  return res.render('clients/basket', { layout: './layouts/clientLayout', auth: true, email: req.user.email });
 });
 
 router.get('/options', authenticateClient, function (req, res, next) {
-  res.send('options view');
+  return res.render('clients/options', { layout: './layouts/clientLayout', auth: true, email: req.user.email });
 });
 
 router.get('/gallery', authenticateClient, function (req, res, next) {
 
     //user authorized
-    Pottery.getGalleryItems().then(galleryItems => { return res.render('clients/gallery', { layout: './layouts/clientLayout', auth: true, items: galleryItems }); })
+    Pottery.getGalleryItems().then(galleryItems => { return res.render('clients/gallery', { layout: './layouts/clientLayout', auth: true, items: galleryItems, email: req.user.email }); })
       .catch(error => { console.log(error); return res.sendStatus(400) })
 
 });
 
-router.get('/potteryinfo/:id', function (req, res, next) {
+router.get('/potteryinfo/:id', isLoggedIn, function (req, res, next) {
+  var isLoggedIn = req.isLoggedIn;  //true/false
+  var userEmail;
+  if(isLoggedIn){
+    userEmail = req.user.email;
+  }else{
+    userEmail = undefined;
+  }
   let pottery;
   Pottery.getById(req.params.id)
   .then(gotPottery => {
@@ -36,16 +43,18 @@ router.get('/potteryinfo/:id', function (req, res, next) {
     return Photo.getPotteryPhotos(pottery.id)
   })
   .then(photos => {
-    return res.render('clients/potteryInfo', { layout:  './layouts/clientLayout', auth: true, pottery: pottery, photos: photos });
+    if(photos.length == 0)
+    photos = [ { id: 0 , path: "/static/images/default.jpg"} ];
+    return res.render('clients/potteryInfo', { layout:  './layouts/clientLayout', auth: isLoggedIn, pottery: pottery, photos: photos, email: userEmail });
   })
 });
 
-router.get('/orderCreateForm', authenticateClient, function (req, res, next) {
-  let getClayP = Material.getClay();
-  let getGlazeP = Material.getGlaze();
+router.get('/individualOrderForm', authenticateClient, function (req, res, next) {
+
   let getPottereyTypes = Pottery.getTypes();
-  Promise.all([getClayP, getGlazeP, getPottereyTypes]).then(values => {
-    return res.render('clients/orderCreateForm', { layout:  './layouts/clientLayout', auth: true, clays: values[0], glazes: values[1], potteryTypes: values[2]  });
+  let getPhotos = Photo.getDistinctPhotos();
+  Promise.all([getPottereyTypes, getPhotos]).then(values => {
+    return res.render('clients/individualOrderForm', { layout:  './layouts/clientLayout', auth: true, potteryTypes: values[0], photos: values[1], email: req.user.email });
   }).catch(err => { console.log(err); return res.sendStatus(500) })
 });
 

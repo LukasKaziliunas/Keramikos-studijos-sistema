@@ -1,6 +1,58 @@
-<div>
-    <a href="/inventory/potteryCreateForm">Prideti nauja</a>
-</div>
-<div id="list">
-    ...
+<script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
+
+<style>
+  .scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+
+    img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    }
+</style>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+
+        <a href="/inventory/potteryCreateForm" ><button type="button" class="btn btn-primary">Pridėti naują keramikos dirbinį</button></a>
+
+        <div id="potteryList" style="padding: 10px;">
+
+            <% if(typeof items != 'undefined') { %>
+                <% items.forEach(function(item) {  %> 
+                    <div class="card mb-3" style="max-width: 1200px;">
+                        <div class="row g-0 align-items-center" >
+                        <div class="col-md-4">
+                            <div class="my-img-container" style="width: 320px; height: 240px">
+                                <img src="<%=item.path%>" class="img-responsive" width="320px" height="240px">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body">
+                            <h5 class="card-title"><%=item.name%></h5>
+                            <p class="card-text"><b>Kaina:</b> <%=item.price%> &euro; | <b>Kiekis:</b> <%=item.amount%> | <b>Dirbinio tipas:</b> <%=item.type%></p>
+                            <p class="card-text"><%=item.description%></p>
+                            <p class="card-text"><b>Rodomas galerijoje:</b> <% if(item.showInGallery == 1){ %> Taip <% } else { %> Ne <% } %> </p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="buttons-container" style="text-align: center;">
+                                    <a href="/inventory/potteryUpdateForm/<%=item.id%>" ><button type="button" class="btn btn-secondary" style="margin-bottom: 5px; margin-right: 5px;"><i class="fas fa-edit"></i> Redaguoti</button></a>
+                                    <a href="/inventory/potteryDelete/<%=item.id%>" onclick="return confirm('Ar tikrai trinti šį gaminį ?')" ><button type="button" class="btn btn-danger"><i class="fas fa-window-close"></i> Trinti</button></a>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>  
+
+        </div>
+
+    </div>
+
 </div>

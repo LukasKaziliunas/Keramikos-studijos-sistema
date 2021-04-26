@@ -4,16 +4,15 @@ const { body } = require('express-validator');
 var router = express.Router();
 const Order = require("../models/Order");
 const Payment = require("../models/Payment");
-const PotteryPurchase = require("../models/PotteryPurchase");
 const Pottery = require("../models/Pottery");
 const PotteryOrder = require("../models/PotteryOrder");
-const { authenticateClient } = require("../tools/auth");
+const PurchasedPottery = require("../models/PurchasedPottery");
+const { authenticateClient, authenticateWorker } = require("../tools/auth");
 
 router.get('/orderConfirmForm', authenticateClient, async function(req, res, next) {
 
   let orderType = req.query.orderType;
   let total = req.query.total;
-  console.log(req.query);
   var deliveryTypesP = Order.getDeliveryTypes();
   var PaymentTypesP = Payment.getPaymentTypes();
 
@@ -21,111 +20,148 @@ router.get('/orderConfirmForm', authenticateClient, async function(req, res, nex
   {
     
     Promise.all([deliveryTypesP, PaymentTypesP]).then(values => {
-      return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], orderType: orderType, price: total });
+      return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: total, email: req.user.email });
     }).catch(err => { console.log(err); return res.sendStatus(500) })
   }else if(orderType == 1)
   {
-    let total = potteryPrice(req.body.potteryType)
-    let potteryOrder = {
-      potteryType: req.body.potteryType,
-      clay: req.body.clay,
-      glaze: req.body.glaze,
-      comment: req.body.comment,
-      price: total
+    console.log(req.query)
+    var orderDetails = {
+      photo: req.query.photo,
+      potteryType: req.query.potteryType,
+      amount: req.query.amount,
+      comment: req.query.comment
     }
-    Promise.all([deliveryTypesP, PaymentTypesP]).then(values => {
-    return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], orderType: req.body.orderType, price: total, potteryOrder: JSON.stringify(potteryOrder) });
+
+
+    let potteryTypePriceP = Pottery.getTypePrice(req.query.potteryType);
+    Promise.all([deliveryTypesP, PaymentTypesP, potteryTypePriceP]).then(values => {
+      return res.render('clients/individualOrderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: (values[2].price * req.query.amount).toFixed(2), orderDetails: JSON.stringify(orderDetails) });
     }).catch(err => { console.log(err); return res.sendStatus(500) })
+  }else{
+    return res.sendStatus(400);
+  }
+});
+
+router.post('/createOrder', authenticateClient, function(req, res, next) {
+
+  let orderType = req.body.orderType;
+  let paymentType = req.body.paymentType;
+  let total = req.body.total;
+  let orderId;
+  var totalToCents = (req.body.total * 100).toFixed(2);
+  if(orderType == 2){  //purchase order
+    
+    let stripePublicKey = process.env.STRIPE_PUBLIC;
+    Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id)
+    .then(gotOrderId => { orderId = gotOrderId; return PurchasedPottery.save(gotOrderId, req.body.basket); })
+    .then(() => { 
+      if(paymentType == 1){
+        return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: totalToCents, orderId: orderId, paymentType: req.body.paymentType, email: req.user.email }); 
+      }else{
+        Payment.save(total, paymentType, "", orderId)
+        .then( () => { return res.redirect("/") });
+      }
+      
+    })
+    .catch(err => { console.log(err); return res.sendStatus(500) })
+  }else if(orderType == 1){ //individual order
+    let stripePublicKey = process.env.STRIPE_PUBLIC;
+    let orderDetails = JSON.parse(req.body.orderDetails);
+    Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id)
+    .then(gotOrderId => { orderId = gotOrderId; return PotteryOrder.save(orderDetails.comment, orderDetails.potteryType, orderDetails.amount, gotOrderId, orderDetails.photo) })
+    .then(() => {
+      if(paymentType == 1){
+        return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: totalToCents, orderId: orderId, paymentType: req.body.paymentType, email: req.user.email }); 
+      }else{
+        Payment.save(total, paymentType, "", orderId)
+        .then( () => { return res.redirect("/") });
+      }
+
+    })
+  }else{
+    return res.sendStatus(200)
+  }
+});
+
+router.post('/purchase', authenticateClient, function(req, res, next) {
+
+    Payment.save((req.body.price / 100 ).toFixed(2), req.body.paymentType, "", req.body.orderId)
+    .then( () => res.sendStatus(200))
+    .catch(err => { console.log(err); return res.sendStatus(500) })
+
+});
+
+router.get('/ordersList', authenticateWorker, function(req, res, next) {
+  var filter = 0;
+  var page = 1;
+  if(req.query.filter != undefined){
+    filter = req.query.filter;
+  }
+  if(req.query.page != undefined){
+    page = req.query.page;
+  }
+  Order.getFullOrderDetails(filter, page - 1).then(orderList => {
+      return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: orderList, filter: filter, page: page  }); 
+  })
+});
+
+router.get('/orderInfo', authenticateWorker, function(req, res, next) {
+
+  var orderId = req.query.orderId;
+  var orderType = req.query.orderType;
+  var orderState = req.query.orderState;
+  if(orderType == 1){
+    //individualus
+    PotteryOrder.get(orderId).then(potteryOrder => {
+        return res.render('orders/individualOrderInfo', { layout: './layouts/workerLayout', potteryOrder: potteryOrder, orderId: orderId, state: orderState });
+    })
+  }else if(orderType == 2){
+    //pirkimo
+    PurchasedPottery.get(orderId).then(items => {
+        return res.render('orders/purchaseOrderInfo', { layout: './layouts/workerLayout', items: items, orderId: orderId, state: orderState });
+    })
   }else{
     return res.sendStatus(400);
   }
 
 });
 
-router.post('/createOrder', authenticateClient, function(req, res, next) {
+router.get('/clientOrderInfo', authenticateClient, function(req, res, next) {
 
-  let orderType = req.body.orderType;
-  let orderId;
-  console.log(req.body);
-  return res.sendStatus(200);
-
-/*
-  if(orderType == 3){  //purchase order
-    let price = (req.body.price * 100).toFixed(2);
-    let stripePublicKey = process.env.STRIPE_PUBLIC;
-    Order.save(price, req.body.city, req.body.address, 3, orderType, req.body.deliveryType)
-    .then(GotOrderId => { orderId = GotOrderId; return PotteryPurchase.save(req.body.postal, GotOrderId, 1) })
-    .then(GotPurchaseId => { return Pottery.changeStateOrdered(GotPurchaseId, req.body.items) })
-    .then(() => { return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: price, orderId: orderId, paymentType: req.body.paymentType, items: req.body.items, orderType: orderType }); })
-    .catch(err => { console.log(err); return res.sendStatus(500) })
-  }else if(orderType == 1){ //pottery order
-    let potteryOrder = JSON.parse(req.body.potteryOrder);
-    let price = (req.body.price * 100).toFixed(2);
-    let stripePublicKey = process.env.STRIPE_PUBLIC;
-    Order.save(price, req.body.city, req.body.address, 3, orderType, req.body.deliveryType)
-    .then(GotOrderId => { orderId = GotOrderId; return PotteryOrder.save(potteryOrder.comment, potteryOrder.potteryType, orderId, 1, potteryOrder.clay, potteryOrder.glaze) })
-    .then(() => { return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: price, orderId: orderId, paymentType: req.body.paymentType, items: {}, orderType: orderType }); })
-    .catch(err => { console.log(err); return res.sendStatus(500) })
+  var orderId = req.query.orderId;
+  var orderType = req.query.orderType;
+  var orderState = req.query.orderState;
+  if(orderType == 1){
+    //individualus
+    PotteryOrder.get(orderId).then(potteryOrder => {
+        return res.render('orders/clientIndividualOrderInfo', { layout: './layouts/clientLayout', auth: true, potteryOrder: potteryOrder, orderId: orderId, state: orderState, email: req.user.email });
+    })
+  }else if(orderType == 2){
+    //pirkimo
+    PurchasedPottery.get(orderId).then(items => {
+        return res.render('orders/clientPurchaseOrderInfo', { layout: './layouts/clientLayout', auth: true, items: items, orderId: orderId, state: orderState, email: req.user.email });
+    })
   }else{
-    return res.sendStatus(200)
+    return res.sendStatus(400);
   }
-*/
+
 });
 
-router.post('/purchase', authenticateClient, function(req, res, next) {
+router.get('/updateState', authenticateWorker, function(req, res, next) {
+  var id = req.query.id;
+  var state = req.query.state;
+  Order.updateState(id, state)
+  .then(() => { return res.sendStatus(200); })
+  .catch(err => { console.log(err); return res.sendStatus(500) })
+});
 
-    let orderType = req.body.orderType;
-  if(orderType == 1){
-    let total = req.body.price / 100;
-    Payment.save(total, req.body.paymentType, "", req.body.orderId)
-    .then(() => { return res.sendStatus(200) })
-    .catch(err => { console.log(err); return res.sendStatus(500) })
-  }else if(orderType == 3){
-    let items = req.body.items.split(",");
-    Pottery.getItemsPriceTotal(items)
-    .then(result => { return Payment.save(result.total, req.body.paymentType, "", req.body.orderId) })
-    .then(() => { return  res.send("payment saved")})
-    .catch(err => { console.log(err); return res.sendStatus(500) })
-  }else{
-    return res.sendStatus(400)
-  }
-
+router.get('/userOrders', authenticateClient, function(req, res, next) {
+  Order.getClientOrders(req.user.id).then(orders => {
+    return res.render('orders/userOrders', { layout: './layouts/clientLayout', auth: true, orders: orders, email: req.user.email });
+  })
+  .catch(err => { console.log(err); return res.sendStatus(500) })
 });
 
 module.exports = router;
 
-function calculateTotal(pricesArray)
-{
-  let total = 0;
-  if (!Array.isArray(pricesArray))
-  pricesArray = [pricesArray];
 
-  pricesArray.forEach(price => {
-   total += parseFloat(price); 
-  });
-  total = total.toFixed(2)
-  return total;
-}
-
-function potteryPrice(potteryType)
-{
-  let price;
-  switch(potteryType)
-  {
-    case '1':
-      price = 50.00;
-      break;
-    case '2':
-      price = 40.00;
-      break;
-    case '3':
-      price = 60.00;
-      break;
-    case '4':
-      price = 80.00; 
-      break;
-    default:
-      price = -1;
-  }
-  return price;
-}

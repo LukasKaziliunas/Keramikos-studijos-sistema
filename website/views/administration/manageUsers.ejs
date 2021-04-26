@@ -1,0 +1,170 @@
+<script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
+<script src="/static/javascripts/jquery.min.js"></script>
+<style>
+    .scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+}
+</style>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <div >
+            <button class="btn btn-primary" type="button">Registruoti darbuotoją</button>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-1">
+                <label for="name" class="form-label">Id</label>
+                <input type="text" name="id" class="form-control" id="id">
+              </div>
+              <div class="col-md-2">
+                <label for="from" class="form-label">Vardas</label>
+                <input type="text" name="name" class="form-control" id="name">
+              </div>
+              <div class="col-md-2">
+                <label for="to" class="form-label">Pavardė</label>
+                <input type="text" name="lname" class="form-control" id="lname">
+              </div>
+              <div class="col-md-2">
+                <label for="gen" class="form-label"> </label>
+                <button class="btn btn-primary form-control" id="searchBtn" onclick="search()"  style="margin-top: 7px;"><i class="fas fa-search"></i> Paieška</button>
+              </div>
+        </div>
+        <hr>
+        
+        <div id="usersList">
+                            
+        </div> 
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination  justify-content-center">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous" onclick="pagePrev()">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#" id="prev" onclick="pagePrev()">-</a></li>
+            <li class="page-item active"><a class="page-link" href="#" id="curr">1</a></li>
+            <li class="page-item"><a class="page-link" href="#" id="next" onclick="pageNext()">2</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next" onclick="pageNext()">
+                <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<script>
+    var page = 1;
+    var id = "";
+    var name = "";
+    var lname = "";
+
+    var prev = document.getElementById("prev");
+    var curr = document.getElementById("curr");
+    var next = document.getElementById("next");
+
+    function search(){
+         id = document.getElementById("id").value;
+         name = document.getElementById("name").value;
+         lastname = document.getElementById("lname").value;
+        getUsers(id,name,lastname,page);
+    }
+
+    function pagePrev(){
+        if(page > 1){
+            page -= 1;
+            if(page == 1){
+                prev.innerHTML = "-";  
+            }else{
+                prev.innerHTML = page - 1; 
+            }
+            curr.innerHTML = page;
+            next.innerHTML = page + 1;
+            getUsers(id,name,lastname,page);
+        }
+    }
+
+    function pageNext(){
+            page += 1;
+            prev.innerHTML = page - 1;  
+            curr.innerHTML = page;
+            next.innerHTML = page + 1;
+            getUsers(id,name,lastname,page);
+    }
+
+    function getUsers(id, name, lname, page){
+        var usersList = document.getElementById("usersList");
+        var html = `<div class="table-responsive">
+                    <table class="table table-bordered">
+                    <tr>
+                    <th>Id</th>
+                    <th>vardas</th>
+                    <th>pavardė</th>
+                    <th>el. paštas</th>
+                    <th>telefonas</th>
+                    <th></th>
+                    </tr>`;
+        $.get( `/administration/getUsers?id=${id}&name=${name}&lname=${lname}&page=${page}`, function( data ) {
+            data.forEach(user => {
+                html = html + `<tr><td>${user.id}</td>
+                                <td>${user.name}</td>
+                                <td>${user.lastname}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phone}</td>
+                                <td>
+                                    <div style="margin-left: auto; margin-right: auto; width: 180px;">
+                                        <button class="btn btn-secondary btn-sm btnEdit" data-id="${user.id}" type="button"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-danger btn-sm btnRemove" data-id="${user.id}" type="button">Uždaryti paskyrą</button>
+                                    </div>
+                                </td></tr>`
+            });
+            html = html + `</table>
+                            </div>`;
+            usersList.innerHTML = html;
+        });
+    }
+
+    
+    $(document).ready(function () {
+        
+        $("#usersList").delegate(".btnRemove", "click", function(){
+            if(confirm('Ar tikrai uždaryti šią paskyrą ?')){
+               var id = $(this).data("id");
+               var removeButton = $(this);
+                $.get(`/account/userDelete?id=${id}`).done(function(){
+                    //window.location.reload(true);
+                    removeButton.closest("tr").remove();
+                }).fail(function() {
+                    alert("klaida trinant");
+                }); 
+            }
+            
+        })
+
+        
+        /*$(".btnRemove").click(function() {
+            if(confirm('Ar tikrai uždaryti šią paskyrą ?')){
+                var id = $(this).data("id");
+                $.get(`/account/userDelete?id=${id}`).done(function(){
+                    window.location.reload(true);
+                }).fail(function() {
+                    alert("klaida trinant");
+                });
+            }
+        });*/
+
+        $( ".btnEdit" ).click(function() {
+            var id = $(this).data("id");
+            //window.location.replace(`/inventory/materialEditForm?id=${id}`);
+        });
+     
+    });
+    
+</script>

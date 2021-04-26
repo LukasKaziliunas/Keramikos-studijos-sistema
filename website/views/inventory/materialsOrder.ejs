@@ -18,40 +18,66 @@
  }
 </style>
 
-<% if(typeof materials != 'undefined') { %>
-    <% if (materials.length > 0) { %>
-        <form method="POST" action="/inventory/submitMaterialsOrder" onsubmit="return submitForm(this);">
-        <hr> 
-         <div id="inputRows">
-            <div class="inputRow">
-                <div class="grid-item"><h4>Id</h4></div>
-                <div class="grid-item"><h4>pavadinimas</h4></div>
-                <div class="grid-item"><h4>likęs kiekis</h4></div>
-                <div class="grid-item"><h4>užsakymo kiekis</h4></div>
-                <div class="grid-item"></div>
-            </div>
-            <hr>
-        <% materials.forEach(function(material) {  %> 
-                <div class="inputRow">
-                    <div class="grid-item"><%=material.id%>
-                        <input type="number" name="id[]" value="<%=material.id%>" hidden>
-                        <input type="number" name="price[]" value="<%=material.price%>" hidden>
-                    </div>
-                    <div class="grid-item"><%= material.name %></div>
-                    <div class="grid-item"><%= material.amount %></div>
-                    <div class="grid-item"><input type="number" name="orderAmount[]" min="1" max="9999" step="0.01" required></div>
-                    <div class="grid-item"><button type="button" class="remove">X</button></div>
-                </div>
-               
-        <% }) %>
-        <br><button style="float: right;" >Pateikti</button>
-        </div> 
-        </form>
-    <%} else { %>
-        <p> visų medžiagų užtenka </p>
-    <% } %>
-<% } %>
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <% if(typeof materials != 'undefined') { %>
+            <% if (materials.length > 0) { %>
+                <form method="POST" action="/inventory/submitMaterialsOrder" onsubmit="return submitForm(this);">
 
+                 <div id="inputRows">
+                    <div class="inputRow">
+                        <div class="grid-item"><b>Id</b></div>
+                        <div class="grid-item"><b>pavadinimas</b></div>
+                        <div class="grid-item"><b>likęs kiekis</b></div>
+                        <div class="grid-item"><b>užsakymo kiekis</b></div>
+                        <div class="grid-item"></div>
+                    </div>
+                    <hr>
+                        <% materials.forEach(function(material) {  %> 
+                                <div class="inputRow">
+                                    <div class="grid-item"><%=material.id%>
+                                        <input type="number" name="id[]" value="<%=material.id%>" hidden>
+                                        <input type="number" name="price[]" value="<%=material.price%>" hidden>
+                                        <input type="text" name="units[]" value="<%=material.units%>" hidden>
+                                        <input type="text" name="names[]" value="<%=material.name%>" hidden>
+                                    </div>
+                                    <div class="grid-item"><%= material.name %></div>
+                                    <div class="grid-item"><%= material.amount %> <%= material.units %></div>
+                                    <div class="grid-item"><input type="number" name="orderAmount[]" min="1" max="9999" step="0.01" required></div>
+                                    <div class="grid-item"><button type="button" class="remove btn btn-danger btn-sm" >X</button></div>
+                                </div>
+                            
+                        <% }) %>
+                    
+                   
+                </div> 
+                <div id="buttons" style="width: 450px; margin: 0 auto 0 auto;">
+                    <div class="row">
+                        <div class="col-4">
+                            <select class="form-select" id="selectedMaterial">
+                                <% allMaterials.forEach(function(material) {  %> 
+                                    <option value="<%=material.id%>"><%=material.name%></option> 
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn btn-success" onclick="addRow()" >+</button>
+                        </div>
+                    </div>
+                    
+                    <div style="height: 50px;">
+                       <button class="btn btn-primary" style="float: right;" >Pateikti</button>  
+                    </div>
+                </div>
+                </form>
+            <%} else { %>
+                <div class="alert alert-info" role="alert">
+                    visų medžiagų užtenka
+                </div>
+            <% } %>
+        <% } %>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
@@ -65,5 +91,39 @@
 
     function submitForm() {
     return confirm('patvirtinti užsakymą.');
+    }
+
+    function addRow(){
+
+        let selectedMaterial = document.getElementById("selectedMaterial");
+        let id = selectedMaterial.value;
+        let inputRows = document.getElementById("inputRows");
+
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: `/inventory/getMaterial/${id}`,
+            success: function (data) {
+                console.log(data);
+                let html = `
+                    <div class="inputRow">
+                        <div class="grid-item">${data.id}
+                            <input type="number" name="id[]" value="${data.id}" hidden>
+                            <input type="number" name="price[]" value="${data.price}" hidden>
+                            <input type="text" name="units[]" value="${data.units}" hidden>
+                            <input type="text" name="names[]" value="${data.name}" hidden>
+                        </div>
+                        <div class="grid-item">${data.name}</div>
+                        <div class="grid-item">${data.amount} ${data.units}</div>
+                        <div class="grid-item"><input type="number" name="orderAmount[]" min="1" max="9999" step="0.01" required></div>
+                        <div class="grid-item"><button type="button" class="remove btn btn-danger btn-sm" >X</button></div>
+                    </div>
+                    `;
+                inputRows.innerHTML = inputRows.innerHTML + html;
+            },
+            error: function () {
+                alert('error loading data');
+            }
+        });
     }
 </script>

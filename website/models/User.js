@@ -18,5 +18,12 @@ exports.save = function(email, password, type){
     let sql = "INSERT INTO `user` (`email`, `password`, `userType`) VALUES ( ? , ? , ? )";
     var inserts = [email, password, type];
     sql = format(sql, inserts);
+    console.log(sql);
     return mysql.insert(sql);
+}
+
+exports.delete = function(userId){
+    var sql = "DELETE FROM `user` WHERE id = ?";
+    sql = format(sql, userId);
+    return mysql.query(sql);
 }

@@ -11,22 +11,22 @@ var stripeHandler = StripeCheckout.configure({
             },
             body: JSON.stringify({
                 stripeTokenId: token.id,
-                items: itemsList,
                 paymentType: paymentType,
                 orderId: orderId,
                 price: price,
-                orderType: orderType
             })
         }).then(function(res) {
             return res.json()
         }).then(function(data) {
-            alert(data.message)
+            //alert(data.message)
+            console.log("success")
+            alert("Užsakymas pateiktas")
+            window.location.replace("/clients/gallery"); 
         }).catch(function(error) {
             // mokejimas niekad neivyks nes naudojama legacy stripe versija
             alert("Užsakymas pateiktas")
             window.location.replace("/clients/gallery"); 
         })
-        localStorage.removeItem('basketItems');
     }
 })
 

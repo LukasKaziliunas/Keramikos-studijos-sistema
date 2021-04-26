@@ -6,9 +6,9 @@ exports.getDeliveryTypes = function(){
     return mysql.query(sql);
 }
 
-exports.save = function(sum, city, address, state, orderType, deliverytype){
-    let sql = "INSERT INTO `order` (`date`, `sum`, `city`, `address`, `state`, `orderType`, `deliverytype`) VALUES (DATE(NOW()), ?, ?, ?, ?, ?, ? )";
-    var inserts = [sum, city, address, state, orderType, deliverytype];
+exports.save = function(sum, city, address, postalCode, state, orderType, deliverytype, clientId){
+    let sql = "INSERT INTO `order` (`date`, `sum`, `city`, `address`, `postalCode`, `state`, `orderType`, `deliverytype`, `fk_Client`) VALUES (DATE(NOW()), ?, ?, ?, ?, ?, ?, ?, ? )";
+    var inserts = [sum, city, address, postalCode, state, orderType, deliverytype, clientId];
     sql = format(sql, inserts);
     return mysql.insert(sql);
 }
@@ -17,4 +17,65 @@ exports.getById = function(id){
     var sql = "SELECT * FROM `order` WHERE `id` = ?";
     sql = format(sql, id);
     return mysql.getOne(sql);
+}
+
+exports.getFilteredOrders = function(dateFrom, dateTo){
+    dateFrom = dateFrom.replace("-", "").replace("-", "");
+    dateTo = dateTo.replace("-", "").replace("-", "");
+    var sql = 'SELECT id, DATE_FORMAT(date, "%Y-%m-%d") as date, sum, orderType FROM `order` WHERE date BETWEEN ? AND ?';
+    sql = format(sql, [dateFrom, dateTo]);
+    return mysql.query(sql);
+}
+
+//id date sum city address postalCode orderState deliveryType orderType orderTypeId clientName clientLName phone
+exports.getFullOrderDetails = function(filter, page){
+    var where = "";
+    var offset = 0;
+    if(page > 0){
+        offset  = page * 3;   
+    }
+
+    if(filter == 0){
+        //all
+        where = "ORDER BY orderstate.id LIMIT 3 OFFSET ?"
+    }else if(filter == 1){
+        //new
+        where = "WHERE state = 1 LIMIT 3 OFFSET ?"
+    }else if(filter == 2){
+        //done
+        where = "WHERE state = 2 LIMIT 3 OFFSET ?"
+    }else if (filter == 3){
+        //canceled
+        where = "WHERE state = 3 LIMIT 3 OFFSET ?"
+    }else if(filter == 4){
+        //individual
+        where = "WHERE orderType = 1 ORDER BY orderstate.id, date LIMIT 3 OFFSET ?";
+    }else if(filter == 5){
+        //purchase
+        where = "WHERE orderType = 2 ORDER BY orderstate.id, date LIMIT 3 OFFSET ?";
+    }else{
+        where = "ORDER BY orderstate.id LIMIT 3 OFFSET ?"
+    }
+    where = format(where, offset);
+    let sql = "SELECT	`order`.`id` , DATE_FORMAT(date, '%Y-%m-%d') as date, `sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
+    deliverytype.name as deliveryType, ordertype.name as orderType, orderType.id as orderTypeId, client.name as clientName,\
+    client.lastname as clientLName, client.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
+    INNER JOIN deliverytype ON deliveryType = deliverytype.id INNER JOIN ordertype ON orderType = ordertype.id\
+    INNER JOIN client ON fk_Client = client.id " + where;
+    return mysql.query(sql);
+}
+
+exports.updateState = function(id, state){
+    var sql = "UPDATE `order` SET state = ? WHERE id = ?";
+    sql = format(sql, [state, id]);
+    return mysql.query(sql);
+}
+
+exports.getClientOrders = function(clientId){
+    var sql = "SELECT `order`.id as id, DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.sum, paymenttype.name as paymentType,\
+    orderstate.name as orderState, ordertype.name as orderType, orderType as orderTypeId FROM `order` INNER JOIN payment\
+    ON `order`.`id` = payment.fk_Order INNER JOIN paymenttype ON payment.paymentType = paymenttype.id INNER JOIN orderstate\
+    ON `order`.state = orderstate.id INNER JOIN ordertype ON `order`.`orderType` = ordertype.id WHERE `order`.`fk_Client` = ? ";
+    sql = format(sql, clientId);
+    return mysql.query(sql);
 }

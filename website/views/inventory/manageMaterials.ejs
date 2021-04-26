@@ -1,52 +1,107 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/static/stylesheets/materials.css">
 
-<button onclick=openMaterialCreateForm() >Pridėti naują medžiagą</button>
-<button onclick=CheckMaterialsBalance() >Tikrinti medžiagų likutį</button>
+<style>
+    .scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    }
 
-<h2>Molis</h2>
-<table style="width: 500px;">
-    <tr>
-        <th>Id</th>
-        <th>pavadinimas</th>
-        <th>kiekis</th>
-    </tr>
-    <% if(typeof clays != 'undefined') { %>
-        <% clays.forEach(function(clay) {  %> 
+</style>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <button onclick=openMaterialCreateForm() class="btn btn-primary" >Pridėti naują medžiagą</button>
+        <button onclick=CheckMaterialsBalance() class="btn btn-primary" >Medžagų užsakymas</button>
+        
+        <h2>Molis</h2>
+        <table style="width: 500px;">
             <tr>
-                <td><%= clay.id %></td>
-                <td><%= clay.name %></td>
-                <td><%= clay.amount %></td>
-              </tr>
-        <% }) %>
-    <% } %> 
-</table>
-<br>
-<h2>Glazūros</h2>
-<table style="width: 500px;">
-    <tr>
-        <th>Id</th>
-        <th>pavadinimas</th>
-        <th>kiekis</th>
-    </tr>
-    <% if(typeof glazes != 'undefined') { %>
-        <% glazes.forEach(function(glaze) {  %> 
+                <th>Id</th>
+                <th>pavadinimas</th>
+                <th>kiekis</th>
+                <th></th>
+            </tr>
+            <% if(typeof clays != 'undefined') { %>
+                <% clays.forEach(function(clay) {  %> 
+                    <tr>
+                        <td><%= clay.id %></td>
+                        <td><%= clay.name %></td>
+                        <td><%= clay.amount %></td>
+                        <td>
+                            <div style="margin-left: auto; margin-right: auto; width: 80px;">
+                                <button class="btn btn-secondary btn-sm btnEdit" type="button" data-id="<%=clay.id%>"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm btnRemove" type="button" data-id="<%=clay.id%>"><i class="fas fa-window-close"></i></button>
+                            </div>
+                        </td>
+                      </tr>
+                <% }) %>
+            <% } %> 
+        </table>
+        <br>
+        <h2>Glazūros</h2>
+        <table style="width: 500px;">
             <tr>
-                <td><%= glaze.id %></td>
-                <td><%= glaze.name %></td>
-                <td><%= glaze.amount %></td>
-              </tr>
-        <% }) %>
-    <% } %> 
-</table>
+                <th>Id</th>
+                <th>pavadinimas</th>
+                <th>kiekis</th>
+                <th></th>
+            </tr>
+            <% if(typeof glazes != 'undefined') { %>
+                <% glazes.forEach(function(glaze) {  %> 
+                    <tr>
+                        <td><%= glaze.id %></td>
+                        <td><%= glaze.name %></td>
+                        <td><%= glaze.amount %></td>
+                        <td>
+                            <div style="margin-left: auto; margin-right: auto; width: 80px;">
+                                <button class="btn btn-secondary btn-sm btnEdit" data-id="<%=glaze.id%>" type="button"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm btnRemove" data-id="<%=glaze.id%>" type="button"><i class="fas fa-window-close"></i></button>
+                            </div>
+                        </td>
+                      </tr>
+                <% }) %>
+            <% } %> 
+        </table>
+    </div>
+</div>
+
 
 <script>
-    function openMaterialCreateForm()
-    {
-        window.location.replace("/inventory/materialCreateForm");
-    }
 
-    function CheckMaterialsBalance()
-    {
-        window.location.replace("/inventory/materialsOrder");
-    }
+        function openMaterialCreateForm()
+        {
+            window.location.replace("/inventory/materialCreateForm");
+        }
+
+        function CheckMaterialsBalance()
+        {
+            window.location.replace("/inventory/materialsOrder");
+        }
+
+        $(document).ready(function () {
+
+            $( ".btnRemove" ).click(function() {
+
+            if(confirm('Ar tikrai trinti šią medžiagą ?')){
+          
+              var id = $(this).data("id");
+            
+              $.get(`/inventory/matterialDelete?id=${id}`).done(function(){
+                window.location.reload(true);
+              }).fail(function() {
+                alert("klaida trinant");
+                });
+            }
+          
+            });
+
+            $( ".btnEdit" ).click(function() {
+          
+            var id = $(this).data("id");
+            window.location.replace(`/inventory/materialEditForm?id=${id}`);
+            });
+        }); 
 </script>

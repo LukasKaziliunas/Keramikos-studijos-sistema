@@ -1,0 +1,209 @@
+<body class="bg-light">
+    
+    <div class="container">
+      <main>
+        <div class="py-5 text-center">
+          
+        </div>
+    
+        <div class="row g-5">
+          <div class="col-md-5 col-lg-4 order-md-last">
+            
+            <ul class="list-group mb-3">
+              <li class="list-group-item d-flex justify-content-between lh-sm" id="deliveryCostCard">
+                <div>
+                  <h6 class="my-0">siuntimas</h6>
+                  
+                </div>
+                <span class="text-muted">+ 5 &euro; </span>
+              </li>
+              
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Bendra suma </span>
+                <div><strong id="totalValue"><%= (price * 1) + 5 %></strong>  &euro;</div>
+              </li>
+            </ul>
+    
+          </div>
+          <div class="col-md-7 col-lg-8">
+            <button type="button" class="btn btn-primary" onclick="window.history.go(-1)" >&lt; atgal</button><br><br>
+            <h3 class="mb-3">Užsakymo duomenys</h3>
+            <br>
+
+            <h4 class="mb-3">Dirbinių gavimo būdas</h4>
+ 
+            <div class="my-3">
+            <% if(typeof delivery != 'undefined') { %>
+                <% delivery.forEach(function(type) {  %> 
+                    
+                        <div class="form-check">
+                          <input id="deliveryType" name="deliveryType" onchange="changeTotal('<%=price%>')" type="radio" value="<%=type.id%>" class="form-check-input" required <% if(type.id == 1){ %> checked <% } %> >
+                          <label class="form-check-label" for="<%=type.id%>"><%=type.name%></label>
+                        </div>
+
+                <% }) %>
+            <% } %> 
+            </div>
+            <hr class="my-4">
+                <div id="deliveryAddress">
+                    <div class="col-12">
+                        <label for="city" class="form-label">Miestas</label>
+                        <input type="text" class="form-control" id="city">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="address" class="form-label">Adresas</label>
+                        <input type="text" class="form-control" id="address">
+                    </div>
+                  
+                    <div class="col-12">
+                        <label for="postalCode" class="form-label">Pašto kodas</label>
+                        <input type="text" class="form-control" id="postalCode">
+                    </div>
+
+                    <hr class="my-4">
+                </div>
+    
+              <h4 class="mb-3">Mokėjimo būdas</h4>
+
+              <div class="my-3">
+                <% if(typeof payments != 'undefined') { %>
+                    <% payments.forEach(function(payment) {  %> 
+                        
+                            <div class="form-check">
+                              <input id="<%=payment.id%>" name="paymentType" type="radio" value="<%=payment.id%>" class="form-check-input" required <% if(payment.id == 1){ %> checked <% } %>>
+                              <label class="form-check-label" for="<%=payment.id%>"><%=payment.name%></label>
+                            </div>
+    
+                    <% }) %>
+                <% } %> 
+                </div>
+    
+              <hr class="my-4">
+               <input type="text" id="orderDetails" value='<%=orderDetails%>' hidden>
+              <button class="w-100 btn btn-primary btn-lg" onclick="submitForm()" type="button">Pateikti</button><br><br><br>
+          </div>
+        </div>
+      </main>
+    
+    </div>
+    
+      </body>
+    </html>
+
+    <script>
+
+        function changeTotal(price){
+            let totalDOM = document.getElementById("totalValue");
+            let deliveryCostCardDOM = document.getElementById("deliveryCostCard");
+            var DeliveryTypeRadios = document.getElementsByName('deliveryType');
+            var deliveryAddressDOM = document.getElementById("deliveryAddress");
+            if(DeliveryTypeRadios[0].checked){
+                totalDOM.innerHTML = price * 1 + 5;
+                deliveryCostCardDOM.style.visibility = "visible";
+                deliveryAddressDOM.style.display = "block";
+            }else if(DeliveryTypeRadios[1].checked){
+                totalDOM.innerHTML = price;
+                deliveryCostCardDOM.style.visibility = "hidden";
+                document.getElementById("city").value = '';
+                document.getElementById("address").value = '';
+                document.getElementById("postalCode").value = '';
+                deliveryAddressDOM.style.display = "none";
+            }else{0
+                alert(error);
+            }
+        }
+
+        function submitForm(){
+
+            if(!confirm("Ar pateikti užsakymą?"))
+              return;
+
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/orders/createOrder';
+
+            let total = document.getElementById("totalValue").innerText;
+            var DeliveryTypeRadios = document.getElementsByName('deliveryType');
+            var PaymentTypeRadios = document.getElementsByName('paymentType');
+            var city = document.getElementById("city").value;
+            var address = document.getElementById("address").value;
+            var postalCode = document.getElementById("postalCode").value;
+            var deliveryType;
+            var paymentType;
+
+            //get delivery type from radio inputs
+            for (var i = 0, length = DeliveryTypeRadios.length; i < length; i++) {
+                if (DeliveryTypeRadios[i].checked) {
+                    deliveryType = DeliveryTypeRadios[i].value
+                    break;
+                }
+            }
+
+              //get payment type from payments radio inputs
+              for (var i = 0, length = PaymentTypeRadios.length; i < length; i++) {
+                if (PaymentTypeRadios[i].checked) {
+                    paymentType = PaymentTypeRadios[i].value
+                    break;
+                }
+            }
+
+            //pristatymas kurjeriu
+            if(deliveryType == 1 && ( city == '' || address == '' || postalCode == '' ))
+            {
+                alert("visi laukai turi būti užpildyti");
+            }else{
+                const hiddenField1 = document.createElement('input');
+                hiddenField1.type = 'hidden';
+                hiddenField1.name = 'deliveryType';
+                hiddenField1.value = deliveryType;
+                form.appendChild(hiddenField1);
+
+                const hiddenField2 = document.createElement('input');
+                hiddenField2.type = 'hidden';
+                hiddenField2.name = 'paymentType';
+                hiddenField2.value = paymentType;
+                form.appendChild(hiddenField2);
+
+                const hiddenField3 = document.createElement('input');
+                hiddenField3.type = 'hidden';
+                hiddenField3.name = 'city';
+                hiddenField3.value = city;
+                form.appendChild(hiddenField3);
+
+                const hiddenField4 = document.createElement('input');
+                hiddenField4.type = 'hidden';
+                hiddenField4.name = 'address';
+                hiddenField4.value = address;
+                form.appendChild(hiddenField4);
+
+                const hiddenField5 = document.createElement('input');
+                hiddenField5.type = 'hidden';
+                hiddenField5.name = 'postalCode';
+                hiddenField5.value = postalCode;
+                form.appendChild(hiddenField5);
+
+                const hiddenField6 = document.createElement('input');
+                hiddenField6.type = 'hidden';
+                hiddenField6.name = 'total';
+                hiddenField6.value = total;
+                form.appendChild(hiddenField6);
+
+                const hiddenField7 = document.createElement('input');
+                hiddenField7.type = 'hidden';
+                hiddenField7.name = 'orderType';
+                hiddenField7.value = 1;
+                form.appendChild(hiddenField7);
+
+                const hiddenField8 = document.createElement('input');
+                hiddenField8.type = 'hidden';
+                hiddenField8.name = 'orderDetails';
+                hiddenField8.value = document.getElementById("orderDetails").value;
+                form.appendChild(hiddenField8);
+                
+                document.body.appendChild(form);
+                form.submit();
+            } 
+        }
+
+    </script>

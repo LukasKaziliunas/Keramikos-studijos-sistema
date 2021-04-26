@@ -23,8 +23,8 @@
             
             <div class="subtotal cf">
               <ul>
-                      <li class="totalRow final"><span class="label">Suma</span><span class="value" id="totalValue"></span> &euro; </li>
-                <li class="totalRow"><a href="#" onclick="submitOrder()" class="btn continue">Pateikti</a></li>
+                <li class="totalRow final"><span class="label">Suma</span><span class="value" id="totalValue"></span> &euro; </li>
+                <li class="totalRow"><a href="#" onclick="createOrder()" class="btn continue" id="createOrderBtn">Toliau</a></li>
               </ul>
             </div>
           </div>
@@ -49,6 +49,9 @@
             $("#myTemplate").tmpl(basketItems).appendTo("#basketList");  
             
             calculateTotal();
+        }else{
+          let createOrderBtnDOM = document.getElementById("createOrderBtn");
+          createOrderBtnDOM.hidden = true;
         }
 
 
@@ -59,11 +62,7 @@
  
       })
 
-      // Just for testing, show all items
-      $('a.btn.continue').click(function(){
-        $('li.items').show(400);
-      })
-
+      
     });
 
 </script>

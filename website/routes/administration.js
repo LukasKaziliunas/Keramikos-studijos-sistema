@@ -4,6 +4,7 @@ const { check, validationResult, Result } = require('express-validator');
 const { authenticateAdmin } = require("../tools/auth");
 const Material = require("../models/Material");
 const Supplier = require("../models/Supplier");
+const Client = require("../models/Client");
 
 const myValidationResult = validationResult.withDefaults({
   formatter: error => {
@@ -50,13 +51,23 @@ router.get('/supplierUpdateForm', authenticateAdmin, function (req, res, next) {
 });
 
 router.get('/suppliers', function (req, res, next) {
-  res.send('suppliers list page');
+  res.render('administration/manageSuppliers', { layout: './layouts/adminLayout' });
 });
 
 router.get('/users', function (req, res, next) {
-  res.send('users managment page');
+  res.render('administration/manageUsers', { layout: './layouts/adminLayout' });
 });
 
+router.get('/getUsers', function (req, res, next) {
+  var id = req.query.id;
+  var name = req.query.name;
+  var lastName = req.query.lname;
+  var page = req.query.page;
+  Client.getClients(id, name, lastName, page - 1).then(clients => {
+    res.json(clients);
+  })
+  .catch(error => { console.log(error); res.sendStatus(500) })
+});
 
 
 

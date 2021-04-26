@@ -24,6 +24,12 @@
                 <%= error.message %>
               </div><br>
         <% }) %>
-    <% } %>  
+    <% } %> 
+    
+    <% if(typeof successMessage != 'undefined') { %>
+      <div class="alert alert-info" role="alert">
+          <%= successMessage %>
+      </div><br>
+    <% } %> 
     </main>
 </body>

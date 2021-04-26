@@ -12,39 +12,38 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-exports.sendMaterialOrder = function (orderId) {
+exports.sendMaterialOrder = function (names, orderAmounts, prices, units, total) {
 
-    let orderP = Order.getById(orderId);
-    let orderMaterialP = MaterialOrder.getOrdersInfo(orderId);
-    let readConfigP = readConfig();
+    readConfig()
+    .then(config => {
+        { return renderOrder(names, orderAmounts, prices, units, total, config) }
+    })
+    .then(data => {
+        var mailOptions = {
+            from: 'keramikosstudija111@yahoo.com',
+            to: 'kaziliunaslukas@gmail.com',
+            subject: 'Medžiagų pirkimo užsakymas',
+            html: data,
+        };
 
-    Promise.all([orderP, orderMaterialP, readConfigP]).then(values => { return renderOrder(values[0], values[1], values[2]) })
-        .then(data => {
-            var mailOptions = {
-                from: 'keramikosstudija111@yahoo.com',
-                to: 'lukas.kaziliunas1@gmail.com',
-                subject: 'Medžiagų pirkimo užsakymas',
-                html: data,
-            };
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-        })
-        .catch(err => console.log(err));
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    })
+    .catch(err => console.log(err));
 
 }
 
-function renderOrder(order, materialsOrders, config) {
+function renderOrder(names, orderAmounts, prices, units, total, config) {
     return new Promise(function (resolve, reject) {
-        if (order == undefined || materialsOrders == undefined || materialsOrders.length == 0) {
+        if (names == undefined || orderAmounts == undefined || prices == undefined || units == undefined || names.length == 0) {
             reject("gauti klaidingi uzsakymo duomenys")
         } else {
-            ejs.renderFile(__dirname + "/templates/materialOrder.ejs", { order: order, materialsOrders: materialsOrders, contactDetails: config.ContactDetails }, function (err, data) {
+            ejs.renderFile(__dirname + "/templates/materialOrderTempl.ejs", { names: names, amounts: orderAmounts, prices: prices, units: units, total: total, details: config.MaterialOrderDetails }, function (err, data) {
                 if (err) {
                     reject(err);
                 } else {

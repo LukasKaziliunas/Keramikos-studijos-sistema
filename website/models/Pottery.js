@@ -17,16 +17,26 @@ exports.getTypes = function(){
     return mysql.query(sql);
 }
 
-exports.save = function(name, price, amount, description, type, showInGalery){
+exports.getTypePrice = function(typeId){
+    var sql = "SELECT price FROM `potterytype` WHERE id = ?";
+    sql = format(sql, typeId);
+    return mysql.getOne(sql);
+}
+
+exports.save = function(name, price, amount, description, type, showInGallery){
     let sql = "INSERT INTO `pottery` (`price`, `description`, `name`, `amount`, `showInGalery`, `potteryType`, `fk_Worker`) VALUES ( ?, ?, ?, ?, ?, ?, '1');";
-    var inserts = [price, description, name, amount, showInGalery, type];
+    var inserts = [price, description, name, amount, showInGallery, type];
     sql = format(sql, inserts);
-    console.log(sql);
     return mysql.insert(sql);
 }
 
 exports.getGalleryItems = function(){
-    let sql = "SELECT DISTINCT pottery.name as name, pottery.price as price, pottery.id as id, photo.path FROM pottery LEFT JOIN photo ON pottery.id = photo.fk_Pottery GROUP by id";
+    let sql = "SELECT DISTINCT pottery.name as name, pottery.price as price, pottery.amount as amount, pottery.id as id, photo.path FROM pottery  LEFT JOIN photo ON pottery.id = photo.fk_Pottery WHERE showInGalery = 1 GROUP by id ";
+    return mysql.query(sql);
+}
+
+exports.getListItems = function(){
+    let sql = "SELECT DISTINCT pottery.name as name, pottery.price as price, pottery.amount as amount, pottery.description as description, pottery.showInGalery as showInGallery, pottery.id as id, potterytype.name as type, photo.path FROM pottery LEFT JOIN photo ON pottery.id = photo.fk_Pottery INNER JOIN potterytype ON potterytype.id = pottery.potteryType GROUP by id";
     return mysql.query(sql);
 }
 
@@ -38,9 +48,21 @@ exports.getItemsPriceTotal = function(itemsArray){
     return mysql.getOne(sql);
 }
 
-exports.changeStateOrdered = function(purchaseId, itemsArray){
-    let sql ="UPDATE pottery SET state = 3, fk_PotteryPurchase = ? WHERE id IN ( ? )";
-    let inserts = [purchaseId, itemsArray];
-    sql = format(sql, inserts);
+exports.delete = function(potteryId){
+    let sql = "DELETE FROM pottery WHERE id = ?";
+    sql = format(sql, potteryId);
+    return mysql.query(sql);
+}
+
+exports.subtractAmount = function(potteryId, quantity){
+    let sql = "UPDATE `pottery` SET `amount` = `amount` - ? WHERE id = ?";
+    sql = format(sql, [quantity, potteryId]);
+    return mysql.query(sql);
+}
+
+exports.update = function(name, price, amount, description, type, showInGallery, potteryId){
+    let sql = "UPDATE `pottery` SET `name` = ?, `price` = ?, `description` = ?, `amount` = ?, `showInGalery` = ?, `potteryType` = ? WHERE `id` = ?"
+    sql = format(sql, [name, price, description, amount, showInGallery, type, potteryId])
+    console.log(sql);
     return mysql.query(sql);
 }

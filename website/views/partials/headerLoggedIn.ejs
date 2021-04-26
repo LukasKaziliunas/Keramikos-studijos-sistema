@@ -13,10 +13,10 @@
         <a class="nav-link" href="/clients/gallery" style="color: white;">Galerija</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/clients/orderCreateForm" style="color: white;">Pateikti užsakymą</a>
+        <a class="nav-link" href="/clients/individualOrderForm" style="color: white;">Pateikti užsakymą</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#" style="color: white;">Mano užsakymai</a>
+        <a class="nav-link" href="/orders/userOrders" style="color: white;">Mano užsakymai</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/clients/basket" style="color: white;">Krepšelis</a>
@@ -24,14 +24,9 @@
     </ul>
     </ul>
     <form class="form-inline my-2 my-lg-0">
+      <span style="color: white; margin-right: 5px;"><% if(typeof email != 'undefined') { %><%=email%><% } %> </span> 
+      <a href="/clients/options" style="color: white; margin-right: 5px;"><i class="fas fa-cog fa-lg"></i></a>  
       <a href="/account/logout"><button class="btn btn-outline-light" type="button">Atsijungti</button></a>
     </form>
   </div>
-</nav>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">Home</a></li>
-    <li class="breadcrumb-item"><a href="#">Library</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Data</li>
-  </ol>
 </nav>

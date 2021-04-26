@@ -1,0 +1,106 @@
+<script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
+<script src="/static/javascripts/jquery.min.js"></script>
+<style>
+     .scroll {
+
+overflow-x: hidden;
+overflow-y: auto;
+height: 100%;
+}
+</style>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <a href="/orders/ordersList?filter=1"><button type="button" class="btn btn-primary">Nauji</button></a> 
+        <a href="/orders/ordersList?filter=2"><button type="button" class="btn btn-primary">Įvykdyti</button></a>
+        <a href="/orders/ordersList?filter=3"><button type="button" class="btn btn-primary">Atšaukti</button></a>
+        <a href="/orders/ordersList?filter=0"><button type="button" class="btn btn-primary">Visi</button></a>
+        <a href="/orders/ordersList?filter=4"><button type="button" class="btn btn-primary">Individualūs</button></a>
+        <a href="/orders/ordersList?filter=5"><button type="button" class="btn btn-primary">Pirkimo</button></a>
+        <hr>
+
+        <div id="ordersList" style="width: 90%;">
+
+            <% orders.forEach(function(order) {  %> 
+                <div class="card">
+                    <div class="card-header">
+                    #id <%=order.id%>  <strong>Būsena:</strong> <span <% if (order.orderState == 'naujas') { %> style="color: green;" <%} else if (order.orderState == 'įvykdytas') { %>style="color: orange;"<% } else if(order.orderState == 'atšauktas') { %>style="color: red;"<% } %>><b><%=order.orderState%></b></span>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-4">
+                            <p><strong>Data:</strong> <%=order.date%></p>
+                            <p><strong>Suma:</strong> <%=order.sum%> &euro;</p>
+                            <p><strong>Užsakovas:</strong> <%=order.clientName%> <%=order.clientLName%></p>
+                            <p><strong>Telefonas:</strong> <%=order.phone%></p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Siuntimo būdas:</strong> <%=order.deliveryType%></p>
+                            <p><%=order.city%>, <%=order.address%>, <%=order.postalCode%></p>
+                            <p><strong>Užsakymo tipas:</strong> <%=order.orderType%></p>
+                        </div>
+                        <div class="col-2">
+                            <div class="row">
+                                <div class="col-9">
+                                    <select class="form-select" id="stateSelector-<%=order.id%>">
+                                        <option value="0">-</option>
+                                        <option value="1">Naujas</option>
+                                        <option value="2">Įvykdytas</option>
+                                        <option value="3">Atšauktas</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-success checkBtn" data-id="<%=order.id%>"><i class="fas fa-check"></i></button>
+                                </div>
+                            </div>
+                            <a href="/orders/orderInfo?orderId=<%=order.id%>&orderType=<%=order.orderTypeId%>&orderState=<%=order.orderState%>"><button type="button" class="btn btn-info" style="margin-top: 20px;">Peržiūrėti</button></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div><br>
+            <% }) %>
+            
+        </div>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination  justify-content-center">
+                    <li class="page-item">
+                        <% if(page > 1) { %>
+                            <a class="page-link" href="/orders/ordersList?filter=<%=filter%>&page=<%=page*1 - 1%>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        <% } %>
+                        
+                    </li>
+                    <% if(page > 1) { %>
+                    <li class="page-item"><a class="page-link" href="/orders/ordersList?filter=<%=filter%>&page=<%=page*1 - 1%>"><%=page*1 - 1%></a></li>
+                    <% } %>
+                    <li class="page-item active"><a class="page-link" href="#"><%=page%></a></li>
+                    <li class="page-item"><a class="page-link" href="/orders/ordersList?filter=<%=filter%>&page=<%=page*1 + 1%>"><%=page*1 + 1%></a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="/orders/ordersList?filter=<%=filter%>&page=<%=page*1 + 1%>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    </ul>
+                </nav>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+       
+        $( ".checkBtn" ).click(function() {
+          var id =  $( this ).data("id");
+         
+          var value = document.getElementById("stateSelector-" + id).value;
+          if(value != 0){
+              $.get(`/orders/updateState?id=${id}&state=${value}`).always(function(){
+                window.location.reload(true);
+              });
+          }
+        });
+        
+    });
+</script>
+

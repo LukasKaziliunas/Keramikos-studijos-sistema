@@ -69,14 +69,15 @@
                 <p> 
                     <b>kiekis studijoje:</b> <span id="span-amount"><%=pottery.amount%></span>  
                 </p>
-                <% if( pottery.amount == 0 ) { %>
-                    <button type="button" disabled id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="float: right; margin-right: 15px;">į krepšelį <i class="fas fa-shopping-basket"></i></button><br><br>
-                <% } else {%>
-                    <div id="button-box" style="float: right; margin-right: 15px;">
-                        <input type="number" id="quantity" min="1" max="<%=pottery.amount%>" value="1"> 
-                        <button type="button" id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="margin-bottom: 6px" >į krepšelį <i class="fas fa-shopping-basket"></i></button>
-                    </div><br><br>
-                    
+                <% if(auth) { %>
+                    <% if( pottery.amount == 0 ) { %>
+                        <button type="button" disabled id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="float: right; margin-right: 15px;">į krepšelį <i class="fas fa-shopping-basket"></i></button><br><br>
+                    <% } else {%>
+                        <div id="button-box" style="float: right; margin-right: 15px;">
+                            <input type="number" id="quantity" min="1" max="<%=pottery.amount%>" value="1"> 
+                            <button type="button" id="tobasket_button" onclick=to_basket() value="<%=pottery.id%>&<%=pottery.name%>&<%=pottery.price%>&<%=photos[0].path%>" class="btn btn-sm btn-outline-secondary" style="margin-bottom: 6px" >į krepšelį <i class="fas fa-shopping-basket"></i></button>
+                        </div><br><br>               
+                    <% } %> 
                 <% } %> 
                 
                 <p id="message">

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+        <div style="width: 50%; margin-right: auto; margin-left: auto;">
+            <h2>Užsakymas</h2>
+            <p><b>vardas:</b> <%= details.name %> </p>
+            <p><b>pavardė:</b> <%= details.lastname %> </p>
+            <p><b>telefonas:</b> <%= details.phone %> </p>
+            <p><b>miestas:</b> <%= details.city %> </p>
+            <p><b>adresas:</b> <%= details.address %> </p>
+            <p><b>pašto kodas:</b> <%= details.postalCode %> </p>
+            <table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%">
+              <tr>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">pavadinimas</th>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">kiekis</th>
+                <th style="border: 1px solid black;text-align: left;padding: 8px;">kaina</th>
+              </tr>
+    
+                  <% for (var i =0; i < names.length;  i++ ) { %>
+                    <tr>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= names[i] %></td>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= amounts[i] %> <%= units[i] %></td>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= prices[i] %> &euro;</td>
+                    </tr>
+                  <% } %>                  
+               
+              <tr>
+                <td></td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Suma:</b></td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= total %> </td>
+              </tr>
+              
+            </table>
+        </div>
+        
+</body>
+</html>

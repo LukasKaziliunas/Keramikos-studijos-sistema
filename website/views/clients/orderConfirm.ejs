@@ -26,6 +26,7 @@
     
           </div>
           <div class="col-md-7 col-lg-8">
+            <button type="button" class="btn btn-primary" onclick="window.history.go(-1)" >&lt; atgal</button><br><br>
             <h3 class="mb-3">Užsakymo duomenys</h3>
             <br>
 
@@ -80,7 +81,7 @@
     
               <hr class="my-4">
     
-              <button class="w-100 btn btn-primary btn-lg" onclick="submitForm()" type="button">Pateikti</button>
+              <button class="w-100 btn btn-primary btn-lg" onclick="submitForm()" type="button">Pateikti</button><br><br><br>
           </div>
         </div>
       </main>
@@ -114,7 +115,10 @@
         }
 
         function submitForm(){
-    
+
+            if(!confirm("Ar tikrai pateikti užsakymą?"))
+              return;
+
             const form = document.createElement('form');
             form.method = 'post';
             form.action = '/orders/createOrder';
@@ -192,6 +196,12 @@
                 hiddenField7.name = 'basket';
                 hiddenField7.value = basketItems;
                 form.appendChild(hiddenField7);
+
+                const hiddenField8 = document.createElement('input');
+                hiddenField8.type = 'hidden';
+                hiddenField8.name = 'orderType';
+                hiddenField8.value = 2;
+                form.appendChild(hiddenField8);
                 
                 document.body.appendChild(form);
                 form.submit();
@@ -199,55 +209,3 @@
         }
 
     </script>
-
-
-<!--
-<h2>Suma: <%= price %> </h2>
-
-<form method="POST" action="/orders/createOrder" enctype="application/x-www-form-urlencoded">
-
-    <fieldset>
-        <legend>Atsiėmimo būdas</legend>
-
-        <% if(typeof delivery != 'undefined') { %>
-            <% delivery.forEach(function(type) {  %> 
-                <input type="radio" id="<%=type.id%>" name="deliveryType" value="<%=type.id%>">
-                <label for="<%=type.id%>"><%=type.name%></label><br>
-            <% }) %>
-        <% } %>  
-
-    </fieldset>
-
-    <fieldset>
-        <legend>Užsakymo duomenys</legend>
-
-    <label for="postal">pašto kodas:</label><br>
-    <input id="postal" type="text" name="postal" required><br>
-
-    <label for="city">miestas:</label><br>
-    <input id="city" type="text" name="city" required><br>
-
-    <label for="address">adresas:</label><br>
-    <input id="address" type="text" name="address" required><br>
-
-    </fieldset>
-
-    <fieldset>
-        <legend>Mokėjimo būdas</legend>
-
-        <% if(typeof payments != 'undefined') { %>
-            <% payments.forEach(function(type) {  %> 
-                <input type="radio" id="<%=type.id%>" name="paymentType" value="<%=type.id%>">
-                <label for="<%=type.id%>"><%=type.name%></label><br>
-            <% }) %>
-        <% } %>  
-
-    </fieldset>
-    
-    <input type="number" name="orderType" value="<%=orderType%>" hidden>
-    <input type="number" name="price" value="<%=price%>" hidden>
-
-    <button type="submit">Patvirtinti</button>
-
-</form>
--->

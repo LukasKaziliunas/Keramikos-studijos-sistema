@@ -1,52 +1,82 @@
-<form method="POST" action="/inventory/materialCreate" enctype="application/x-www-form-urlencoded">
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
 
-    <fieldset>
-        <legend>Medžiagos pridėjimo forma</legend>
+        <form method="POST" action="/inventory/materialCreate" enctype="application/x-www-form-urlencoded">
 
-        <label for="name">pavadinimas:</label><br>
-        <input type="text" name="name" id="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>"><br>
+            <div class="mb-3 row">
+                <label for="name" class="col-sm-1 col-form-label">Pavadinimas</label>
+                <div class="col-sm-2">
+                  <input type="text" name="name" class="form-control" id="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>">
+                </div>
+            </div>
 
-        <label for="amount">kiekis:</label><br>
-        <input type="number" name="amount" id="amount" step="0.01" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>">
-        <select name="unit" >
-            <% if(typeof units != 'undefined') { %>
-                <% units.forEach(function(unit) {  %> 
-                    <option value="<%=unit.id%>"><%=unit.name%></option> 
-                <% }) %>
-            <% } %>  
-        </select><br>
+            <div class="mb-3 row">
+                <label for="amount" class="col-sm-1 col-form-label">Kiekis</label>
+                <div class="col-sm-1">
+                    <input type="number" name="amount" id="amount" step="0.01" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>" class="form-control">
+                </div>
+                <div class="col-sm-1">
+                    <select name="unit" class="form-select">
+                        <% if(typeof units != 'undefined') { %>
+                            <% units.forEach(function(unit) {  %> 
+                                <option value="<%=unit.id%>"><%=unit.name%></option> 
+                            <% }) %>
+                        <% } %>  
+                    </select>
+                </div>
+            </div>
 
-        <label for="price">kaina:</label><br>
-        <input type="number" name="price" id="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>"><br>
+            <div class="mb-3 row">
+                <label for="price" class="col-sm-1 col-form-label">kaina</label>
+                <div class="col-sm-2">
+                  <input type="number" name="price" id="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>" class="form-control">
+                </div>
+            </div>
 
-        <label for="limit">limitas:</label><br>
-        <input type="number" name="limit" id="limit" step="0.01" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>"><br>
+            <div class="mb-3 row">
+                <label for="limit" class="col-sm-1 col-form-label">Limitas</label>
+                <div class="col-sm-2">
+                  <input type="number" name="limit" id="limit" step="0.01" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>" class="form-control">
+                </div>
+            </div>
 
-        <input type="checkbox" name="checkLimit" id="checkLimit" value="1">
-        <label for="checkLimit">tikrinti limita</label><br><br>
+            Tikrinti limitą
+            <input type="checkbox" name="checkLimit" value="1" checked><br><br>
+            
+            <div class="mb-3 row">
+                <label class="col-sm-1 col-form-label">Tiekėjs</label>
+                <div class="col-sm-2">
+                    <select class="form-select" name="supplier" id="supplier">
+                        <option value="">-</option> 
+                        <% if(typeof suppliers != 'undefined') { %>
+                            <% suppliers.forEach(function(supplier) {  %> 
+                                <option value="<%=supplier.id%>"><%=supplier.name%></option> 
+                            <% }) %>
+                        <% } %>  
+                    </select>
+                </div>
+            </div>
 
-        <label for="supplier">tiekejas:</label><br>
-        <select name="supplier" id="supplier">
-            <option value="">-</option> 
-            <% if(typeof suppliers != 'undefined') { %>
-                <% suppliers.forEach(function(supplier) {  %> 
-                    <option value="<%=supplier.id%>"><%=supplier.name%></option> 
-                <% }) %>
-            <% } %>  
-        </select><br>
-
-        <label for="materialType">tipas:</label><br>
-        <select name="materialType" id="materialType">
-            <option value="1">molis</option> 
-            <option value="2">glazūra</option> 
-        </select><br><br>
-        <input type="submit" value="išsaugoti">
-</form><br> 
+            <div class="mb-3 row">
+                <label class="col-sm-1 col-form-label">Medžiagos tipas</label>
+                <div class="col-sm-2">
+                    <select class="form-select" name="materialType" id="materialType">
+                        <option value="1">molis</option> 
+                        <option value="2">glazūra</option> 
+                    </select><br><br>
+                </div>
+            </div>
     
-    <% if(typeof errorsList != 'undefined') { %>
-        <% errorsList.forEach(function(error) {  %> 
-            <h1> 
-                <%= error.message %>  
-            </h1>
-        <% }) %>
-    <% } %>  
+            <button type="submit" class="btn btn-primary">Išsaugoti</button>
+        </form><br> 
+
+<% if(typeof errorsList != 'undefined') { %>
+    <% errorsList.forEach(function(error) {  %> 
+        <div class="alert alert-danger" role="alert">
+            <%= error.message %>  
+          </div>
+    <% }) %>
+<% } %>  
+
+    </div>
+</div>

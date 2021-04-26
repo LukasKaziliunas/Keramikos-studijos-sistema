@@ -8,7 +8,7 @@ exports.getPaymentTypes = function(){
 }
 
 exports.save = function(sum, type, payer, orderId){
-    let sql = "INSERT INTO `payment` (`sum`, `type`, `payer`,  `fk_Order`, `date`) VALUES ( ?, ?, ?, ?, DATE(NOW()));";
+    let sql = "INSERT INTO `payment` (`sum`, `paymentType`, `payer`,  `fk_Order`, `date`) VALUES ( ?, ?, ?, ?, DATE(NOW()));";
     var inserts = [sum, type, payer, orderId];
     sql = format(sql, inserts);
     return mysql.insert(sql);

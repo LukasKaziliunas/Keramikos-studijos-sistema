@@ -14,6 +14,21 @@ exports.authenticate = function(req, res, next){
     })
 }
 
+exports.isLoggedIn = function(req, res, next){
+    const token = req.cookies.access_token
+    var isLoggedIn = true;
+    if (token == null) isLoggedIn = false; // nera tokeno slapukyje,
+    jwt.verify(token, process.env.ACCESS_TOCKEN_SECRET, (err, user) => {
+        if (err) isLoggedIn = false; // baigesi galiojimo laikas (403 forbidden)
+        
+        req.isLoggedIn = isLoggedIn;
+        if(isLoggedIn){
+            req.user = user
+        }
+        next()
+    })
+}
+
 exports.authenticateClient = function(req, res, next){
 
     const token = req.cookies.access_token

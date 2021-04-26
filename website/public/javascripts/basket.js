@@ -103,7 +103,7 @@ function calculateTotal()
     totalValue.innerHTML = total;
 }
 
-function submitOrder(){
+function createOrder(){
     let totalValue = document.getElementById("totalValue");
     let total = totalValue.innerHTML;
     location.replace(`/orders/orderConfirmForm?total=${total}&orderType=2`)

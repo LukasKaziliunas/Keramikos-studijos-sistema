@@ -1,0 +1,65 @@
+<script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
+<style>
+    .scroll {
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+</style>
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px; width: 80%;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <form method="POST" action="/reports/generateReport" encType="multipart/form-data" onsubmit="loading()" class="row g-3" >
+            <div class="col-md-4">
+                <label for="name" class="form-label">Failo pavadinimas</label>
+                <input type="text" name="name" class="form-control" id="name" value="<%=date%>">
+              </div>
+              <div class="col-md-3">
+                <label for="from" class="form-label">nuo</label>
+                <input type="date" name="from" class="form-control" id="from">
+              </div>
+              <div class="col-md-3">
+                <label for="to" class="form-label">iki</label>
+                <input type="date" name="to" class="form-control" id="to">
+              </div>
+              <div class="col-md-2">
+                <label for="gen" class="form-label"> </label>
+                <button class="btn btn-primary form-control" id="gen" style="margin-top: 7px;">generuoti</button>
+              </div>
+        </form>
+        <hr>
+
+        <div id="loading">
+
+        </div>
+
+        
+
+        <div id="pdfs">
+            
+        </div>
+        <h4>Ataskaitos <button type="button" onclick="window.location.reload(true)" class="btn btn-secondary"><i class="fas fa-redo"></i></button></h4>
+        <ul class="list-group list-group-flush">
+            <% pdfs.forEach(function(pdf) {  %> 
+                <li class="list-group-item"><b><%=pdf%></b> | <a href="/reports/reportDisplay?name=<%=pdf%>">peržiūrėti</a></li>
+            <% }) %>
+          </ul>
+
+    </div>
+</div>
+
+
+
+<script>
+    function loading()
+    {
+        let loadingDIV = document.getElementById("loading")
+        loadingDIV.innerHTML = `
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status">
+            </div>
+        </div>`;
+        let generationButton = document.getElementById("gen");
+        generationButton.disabled = true;
+    }
+</script>

@@ -1,0 +1,31 @@
+<div class="container-fluid" style="padding: 0 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <tr>
+                <th>Id</th>
+                <th>Data</th>
+                <th>Kaina</th>
+                <th>Mokėjimo būdas</th>
+                <th>Statusas</th>
+                <th>Užsakymo tipas</th>
+                <th></th>
+              </tr>
+                <% if(typeof orders != 'undefined') { %>
+                    <% orders.forEach(function(order) {  %> 
+                        <tr>
+                            <td><%=order.id%></td>
+                            <td><%=order.date%></td>
+                            <td><%=order.sum%> &euro;</td>
+                            <td><%=order.paymentType%></td>
+                            <td><%=order.orderState%></td>
+                            <td><%=order.orderType%></td>
+                            <td> <a href="/orders/clientOrderInfo?orderId=<%=order.id%>&orderType=<%=order.orderTypeId%>&orderState=<%=order.orderState%>">daugiau</a> </td>
+                          </tr>
+                    <% }) %>
+                <% } %>        
+              
+        </table>
+      </div>
+   
+</div>

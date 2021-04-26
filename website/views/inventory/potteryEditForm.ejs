@@ -1,0 +1,192 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+
+<style>
+    .scroll {
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+</style>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+
+        <form method="POST" action="/inventory/potteryUpdate" encType="multipart/form-data">
+
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-sm-1 col-form-label">Pavadinimas</label>
+                <div class="col-sm-2">
+                  <input type="text" name="name" class="form-control" id="inputPassword" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-sm-1 col-form-label">Kaina</label>
+                <div class="col-sm-1">
+                  <input type="number" class="form-control" id="inputPassword" name="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-sm-1 col-form-label">Kiekis</label>
+                <div class="col-sm-1">
+                  <input type="number" class="form-control" id="inputPassword" name="amount" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-sm-1 col-form-label">Aprašymas</label>
+                <div class="col-sm-6">
+                    <div class="form-floating">
+                        <textarea class="form-control" name="description" id="floatingTextarea2" style="height: 100px"><% if(typeof fields.description != 'undefined') { %><%=fields.description%><% } %></textarea>
+                        <label for="floatingTextarea2">Aprašymas...</label>
+                      </div>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-sm-1 col-form-label">Dirbinio tipas</label>
+                <div class="col-sm-2">
+                    <select class="form-select" name="type" aria-label="Default select example" required>
+                        <% types.forEach(function(type) {  %> 
+                            <option value="<%=type.id%>" <% if(fields.potteryType == type.id) { %> selected <% } %>  ><%=type.name%></option> 
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            Rodyti galerijoje
+            <input type="checkbox" name="showInGallery" value="1" <% if(typeof fields.showInGalery != 'undefined' && fields.showInGalery == 1) { %> checked <% } %>><br><br>
+            <hr>
+            Medžiagos<br>
+            <button id="add" type="button" class="btn btn-secondary">Pridėti</button>
+            <ul id="materials_list">
+
+            </ul>
+
+            <ul>
+                <% potteryMateials.forEach(function(potteryMaterial) {  %> 
+                    <li style="margin-bottom: 5px;">
+                    <%=potteryMaterial.id%> <%=potteryMaterial.name%> | kiekis - <%=potteryMaterial.materialAmount%> <%=potteryMaterial.units%>
+                    <input type="number" value="<%=potteryMaterial.potteryMaterialAmount%>" readonly> 
+                    <button type="button" class="btn btn-danger removePotteryMaterial" data-pottmatid="<%=potteryMaterial.id%>" data-materialid="<%=potteryMaterial.materialId%>" data-amount="<%=potteryMaterial.potteryMaterialAmount%>" >Pašalinti</button>
+                    </li>
+                <% }) %>
+            </ul>
+
+           
+            <hr>
+            Dirbinio nuotraukos
+            <div class="row">
+
+            <% if(typeof photos != 'undefined') { %>
+                <% photos.forEach(function(photo) {  %>
+                   
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div style="width: 320px; height: 240px">
+                            <label for="<%=photo.id%>"><img src="<%=photo.path%>" class="img-responsive" width="320px" height="240px"></label>
+                        </div>
+                        <button type="button" class="removePhoto btn btn-danger" style="float: right;" data-photoid="<%=photo.id%>">X</button>
+                    </div>
+
+                <% }) %>
+            <% } %>  
+    
+          </div><br>
+
+            <div class="mb-3">
+                <label for="formFileMultiple" class="form-label">Pridėti nuotraukų</label>
+                <input class="form-control" type="file" name="photos" id="formFileMultiple" multiple>
+            </div>
+
+            <input type="number" name="potteryId" value="<%=fields.id%>" hidden> 
+            <button type="submit" class="btn btn-primary">Išsaugoti</button>
+
+        </form><br> 
+
+        <% if(typeof errorsList != 'undefined') { %>
+            <% errorsList.forEach(function(error) {  %> 
+                <div class="alert alert-danger" role="alert">
+                    <%= error.message %>  
+                </div>
+            <% }) %>
+        <% } %> 
+
+    </div>
+</div>
+
+<template id="material_template">
+    <li style="margin-bottom: 5px;">
+    <select name="materials">
+        <% allMaterials.forEach(function(material) {  %> 
+            <option value="<%=material.id%>"><%=material.name%> | kiekis - <%=material.amount%> <%=material.units%></option> 
+        <% }) %>
+    </select>
+    <input type="number" name="amounts" step="0.01"> 
+    <button id="sub" type="button" class="remove btn btn-danger" >Pašalinti</button><br>
+    </li>
+</template>
+
+
+<script>
+$(document).ready(function () {
+    var materials = $('#materials_list');
+
+    var materialTemplate = $('#material_template').html();
+
+    function addEntry()
+    {
+        materials.append(materialTemplate);
+    }
+
+    $('#add').on('click', function(){
+        addEntry();
+    })
+
+    materials.delegate( '.remove' ,'click', function(){
+            
+        var $li = $(this).closest('li');
+        $li.remove();
+            
+    });
+
+    $(".removePotteryMaterial").click(function() {
+
+         if(confirm('Ar tikrai trinti šią dirbinio medžiagą ?')){
+            var id =  $( this ).data("pottmatid");
+            var materialId =  $( this ).data("materialid");
+            var amount = $( this ).data("amount");
+            
+            var $li = $(this).closest('li');
+
+            $.get(`/inventory/deletePotteryMaterial?id=${id}&materialId=${materialId}&amount=${amount}`)
+                .done(function() {
+                    $li.remove();
+                })
+                .fail(function() {
+                    alert("klaida trinant");
+                })
+        }
+    });
+
+    $(".removePhoto").click(function() {
+
+        if(confirm('Ar tikrai trinti šią nuotrauką ?')){
+            var id =  $(this).data("photoid");
+            var $div = $(this).closest('div');
+        
+            $.get(`/inventory/deletePhoto?id=${id}`)
+                .done(function() {
+                    $div.remove();
+                })
+                .fail(function() {
+                    alert("klaida trinant");
+                })
+        }
+    });
+})
+
+</script>

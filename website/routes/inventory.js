@@ -29,9 +29,13 @@ router.get('/', authenticateWorker, function (req, res, next) {
 });
 
 router.get('/potteryList', authenticateWorker, function (req, res, next) {
-  res.render('inventory/potteryList', { layout: './layouts/workerLayout' });
+  Pottery.getListItems().then(items => {
+    return res.render('inventory/potteryList', { layout: './layouts/workerLayout', items: items });
+  })
+  .catch(err => { console.log(err); return res.sendStatus(500) })
+  
 });
-
+// pottery create ************************
 router.get('/potteryCreateForm', authenticateWorker, function (req, res, next) {
   let potteryTypesP = Pottery.getTypes();
   let matterialsP = Material.getAll();
@@ -45,7 +49,7 @@ router.get('/potteryCreateForm', authenticateWorker, function (req, res, next) {
 
 router.post('/potteryCreate', authenticateWorker, [
   check('name', 'neįvestas pavadinimas').notEmpty(),
-  check('price', 'neįvestas kaina').notEmpty(),
+  check('price', 'neįvesta kaina').notEmpty(),
   check('materials', 'nepasirinktos madžiagos').notEmpty(),
 ], function (req, res, next) {
 
@@ -64,27 +68,79 @@ router.post('/potteryCreate', authenticateWorker, [
   }
   else { // form is valid
 
-    let showInGalery = 0;
+    let showInGallery = 0;
     if (req.body.showInGalery != undefined)
-      showInGalery = 1;
+    showInGallery = 1;
     
-    Pottery.save(req.body.name, req.body.price, req.body.amount, req.body.description, req.body.type, showInGalery)    //save pottery
+    Pottery.save(req.body.name, req.body.price, req.body.amount, req.body.description, req.body.type, showInGallery)    //save pottery
       .then(gotPotteryId => {
 
         let promises = [savePotteryMaterials(req.body.materials, req.body.amounts, gotPotteryId), savePhotos(req.files, gotPotteryId)]
         Promise.all(promises)
-          .then(result => { console.log(result); return res.render('inventory/workerHomeView', { layout: './layouts/workerLayout' }); })
-          .catch(err => { console.log(err); return res.render('inventory/workerHomeView', { layout: './layouts/workerLayout' }); })
+          .then(result => { console.log(result); return res.redirect("/inventory/potteryList"); })
+          .catch(err => { console.log(err); return res.redirect("/inventory/potteryList"); })
       })
       .catch(error => { console.log(error); return res.sendStatus(500) })
   }
 
 });
 
-router.get('/potteryUpdateForm', authenticateWorker, function (req, res, next) {
-  res.send('pottery edit form');
+// pottery update ****************
+router.get('/potteryUpdateForm/:id', authenticateWorker, function (req, res, next) {
+  let potteryTypesP = Pottery.getTypes();
+  let potteryP = Pottery.getById(req.params.id)
+  let photosP = Photo.getPotteryPhotos(req.params.id)
+  let potteryMaterialsP = PotteryMaterial.getByPottery(req.params.id);
+  let allMatterialsP = Material.getAll();
+
+  Promise.all([potteryTypesP, potteryP, photosP, potteryMaterialsP, allMatterialsP]).then(values => {
+     return res.render('inventory/potteryEditForm', { layout: './layouts/workerLayout', types: values[0], fields: values[1], photos: values[2], potteryMateials: values[3], allMaterials: values[4] }) 
+  })
 });
 
+router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
+    var name = req.body.name;
+    var price = req.body.price;
+    var amount = req.body.amount;
+    var description = req.body.description;
+    var potteryType = req.body.type;
+    var potteryId = req.body.potteryId;
+    var showInGallery = 0;
+
+    if (req.body.showInGallery != undefined)
+    showInGallery = 1;
+
+    Pottery.update(name, price, amount, description, potteryType, showInGallery, potteryId)
+    .then(() => {
+      let promises = [];
+      if(req.files != null){
+        let savePhotosP = savePhotos(req.files, potteryId);
+        promises.push(savePhotosP);
+      }
+
+      if(req.body.materials != undefined){
+        let savePotteryMaterialsP = savePotteryMaterials(req.body.materials, req.body.amounts, potteryId);
+        promises.push(savePotteryMaterialsP);
+      }
+
+      if(promises.length > 0){
+        Promise.all([promises]).then(values => {
+        return res.redirect("/inventory/potteryList");
+        })
+      }else{
+        return res.redirect("/inventory/potteryList");
+      }
+    })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
+});
+// pottery delete *********************
+router.get('/potteryDelete/:id', authenticateWorker, function (req, res, next) {
+  Pottery.delete(req.params.id)
+  .then(() => { return res.redirect("/inventory/potteryList"); })
+  .catch(error => { console.log(error); return res.sendStatus(500) })
+});
+
+// materials ******************
 router.get('/manageMaterials', authenticateWorker, function (req, res, next) {
   let clayP = Material.getClay();
   let glazeP = Material.getGlaze();
@@ -95,8 +151,11 @@ router.get('/manageMaterials', authenticateWorker, function (req, res, next) {
 });
 
 router.get('/materialsOrder', authenticateWorker, function (req, res, next) {
-  Material.getLackingMaterials().then(gotMaterials => {
-    return res.render('inventory/materialsOrder', { layout: './layouts/workerLayout', materials: gotMaterials })
+  let MaterialsP = Material.getAll();
+  let lackingMaterials = Material.getLackingMaterials();
+
+  Promise.all([MaterialsP, lackingMaterials]).then(values => {
+    return res.render('inventory/materialsOrder', { layout: './layouts/workerLayout', allMaterials: values[0] , materials: values[1] })
   })
 });
 
@@ -105,27 +164,23 @@ router.post('/submitMaterialsOrder', authenticateWorker, function (req, res, nex
   var materialsIds = req.body.id;
   var prices = req.body.price;
   var orderAmounts = req.body.orderAmount;
-  var orderId;
+  var units = req.body.units;
+  var names = req.body.names;
+  var total = 0;
+  for(let i = 0; i < prices.length ; i++){
+    total += prices[i] * orderAmounts[i];
+  }
+  total = total.toFixed(2);
 
-  readConfig()
-    .then(config => {
-
-      let total = 0;
-      for (let i = 0; i < materialsIds.length; i++) {
-        total += prices[i] * orderAmounts[i];
-      }
-      let details = config.MaterialOrderDetails;
-      return Order.save(total.toFixed(2), details.city, details.address, 3, 2, details.deliveryType);
-    })
-    .then(gotOrderId => { orderId = gotOrderId; return MaterialOrder.saveMultiple(orderAmounts, prices, materialsIds, gotOrderId) })
+    MaterialOrder.saveMultiple(orderAmounts, prices, materialsIds)
     .then(() => {
-      emailer.sendMaterialOrder(orderId);
-      res.redirect('/');
+      emailer.sendMaterialOrder(names, orderAmounts, prices, units, total);
+      res.redirect('/inventory/manageMaterials');
     })
     .catch(error => { console.log(error); return res.sendStatus(500) })
 });
 
-//returs material create form
+// material create **********************
 router.get('/materialCreateForm', authenticateWorker, function (req, res, next) {
 
   let suppliersP = Supplier.getAll();
@@ -167,14 +222,85 @@ router.post('/materialCreate', authenticateWorker, [
       checkLimit = 1;
 
     Material.save(req.body.name, req.body.amount, req.body.price, req.body.supplier, req.body.limit, checkLimit, req.body.materialType, req.body.unit)
-      .then(() => { return res.redirect('/inventory') })
+      .then(() => { return res.redirect('/inventory/manageMaterials') })
       .catch(error => { console.log(error); res.sendStatus(500) })
   }
 });
 
-router.get('/matterialUpdateForm', authenticateWorker, function (req, res, next) {
-  res.send('matterial edit form');
+// material edit ********************
+router.get('/materialEditForm', authenticateWorker, function (req, res, next) {
+
+  var materialId = req.query.id;
+  var suppliersP = Supplier.getAll();
+  var unitsP = Units.getUnits();
+  var materialP = Material.getById(materialId);
+
+  Promise.all([materialP, suppliersP, unitsP]).then(values => {
+    return res.render('inventory/materialEditForm', { layout: './layouts/workerLayout', fields: values[0], suppliers: values[1], units: values[2], materialId: materialId });
+  })
+  .catch(error => { console.log(error); res.sendStatus(500) })
 });
+
+router.post('/materialEdit', authenticateWorker, function (req, res, next) {
+  
+  var materialId = req.body.materialId;
+  var name = req.body.name;
+  var amount = req.body.amount;
+  var units = req.body.unit;
+  var price = req.body.price;
+  var limit = req.body.limit;
+  var supplier = req.body.supplier;
+  var materialType = req.body.materialType;
+  var checkLimit = 0;
+    if (req.body.checkLimit != undefined)
+      checkLimit = 1;
+
+  Material.update(name, amount, price, limit, checkLimit, units, materialType, supplier, materialId)
+  .then(() => { return res.redirect('/inventory/manageMaterials'); })
+  .catch(error => { console.log(error); return res.sendStatus(500) })
+  
+});
+
+//material delete
+router.get('/matterialDelete', authenticateWorker, function (req, res, next) {
+  console.log(req.query.id)
+  Material.delete(req.query.id).then(()=>{
+    return res.sendStatus(200);
+  }).catch(err => { console.log(err); return res.sendStatus(500); })
+});
+
+
+//ajax
+router.get('/getPottery/:id', function (req, res, next) {
+  let pottery;
+  Pottery.getById(req.params.id)
+  .then(gotPottery => { pottery = gotPottery; return Photo.getOnePhoto(gotPottery.id); })
+  .then(photo => {pottery.photo = photo.path; return res.json(pottery)})
+  .catch( () => { return res.sendStatus(400) } )
+});
+
+router.get('/getMaterial/:id', authenticateWorker, function (req, res, next) {
+  Material.getById(req.params.id)
+  .then(material => {
+    res.json(material);
+  })
+});
+
+router.get('/deletePotteryMaterial', function (req, res, next) {
+  PotteryMaterial.delete(req.query.id, req.query.materialId, req.query.amount)
+  .then(() => { return res.sendStatus(200) })
+  .catch(err => { console.log(err); return res.sendStatus(500) });
+});
+
+router.get('/deletePhoto', function (req, res, next) {
+  Photo.removePhotoFromPottery(req.query.id).then(()=>{
+    return res.sendStatus(200);
+  })
+  .catch(err => { console.log(err); return res.sendStatus(500) });
+});
+
+
+
 
 //files = req.files
 function savePhotos(files, potteryId) {
@@ -193,37 +319,41 @@ function savePhotos(files, potteryId) {
 
       photosList.forEach(photo => {
         //console.log(photo);
-        let photoName = uuidv4();
-        uploadPath = __dirname + '/../public/images/' + photoName + ".jpg";
-        photo.mv(uploadPath, function (err) {    //save photo to a folder
-          if (err)
-            reject(err)
-        });
-        Photo.save("/static/images/" + photoName + ".jpg", potteryId).catch(err => { throw err }); // save photo path to a database
+        if(photo.mimetype == 'image/jpeg' || photo.mimetype == 'image.png'){
+          let photoName = uuidv4();
+          uploadPath = __dirname + '/../public/images/' + photoName + ".jpg";
+          photo.mv(uploadPath, function (err) {    //save photo to a folder
+            if (err)
+              reject(err)
+          });
+          Photo.save("/static/images/" + photoName + ".jpg", potteryId).catch(err => { throw err }); // save photo path to a database
+        }
+        
       })
       resolve("photos saves")
     } else {
-      reject("no photos")
+      Photo.save("/static/images/default.jpg", potteryId).catch(err => { reject(err) })
+      .then(() => { resolve("no photos") });
     }
   });
 }
 
-function savePotteryMaterials(materials, amounts, potteryId) {
+function savePotteryMaterials(materialsIds, amounts, potteryId) {
 
   return new Promise((resolve, reject) => {
 
-    if (materials && amounts) {
+    if (materialsIds && amounts) {
 
       //turn into array if its not already, so i can iterate
-      if (!Array.isArray(materials))
-        materials = [materials];
+      if (!Array.isArray(materialsIds))
+      materialsIds = [materialsIds];
 
       if (!Array.isArray(amounts))
         amounts = [amounts];
 
-      for (let i = 0; i < materials.length; i++) {
-        PotteryMaterial.save(materials[i], amounts[i], potteryId)
-        .then(() => Material.subtractAmount(materials[i], amounts[i]))
+      for (let i = 0; i < materialsIds.length; i++) {
+        PotteryMaterial.save(materialsIds[i], amounts[i], potteryId)
+        .then(() => Material.subtractAmount(materialsIds[i], amounts[i]))
         .catch(err => { throw err });
       }
 

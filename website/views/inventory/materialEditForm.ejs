@@ -1,0 +1,83 @@
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+
+        <form method="POST" action="/inventory/materialEdit" enctype="application/x-www-form-urlencoded">
+
+            <div class="mb-3 row">
+                <label for="name" class="col-sm-1 col-form-label">Pavadinimas</label>
+                <div class="col-sm-2">
+                  <input type="text" name="name" class="form-control" id="name" required value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="amount" class="col-sm-1 col-form-label">Kiekis</label>
+                <div class="col-sm-1">
+                    <input type="number" name="amount" id="amount" step="0.01" required value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>" class="form-control">
+                </div>
+                <div class="col-sm-1">
+                    <select name="unit" class="form-select" required>
+                        <% if(typeof units != 'undefined') { %>
+                            <% units.forEach(function(unit) {  %> 
+                                <option value="<%=unit.id%>" <% if(fields.unitsId == unit.id){ %> selected <% } %> ><%=unit.name%></option> 
+                            <% }) %>
+                        <% } %>  
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="price" class="col-sm-1 col-form-label">kaina</label>
+                <div class="col-sm-2">
+                  <input type="number" name="price" id="price" step="0.01" required value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="limit" class="col-sm-1 col-form-label">Limitas</label>
+                <div class="col-sm-2">
+                  <input type="number" name="limit" id="limit" step="0.01" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>" class="form-control">
+                </div>
+            </div>
+
+            Tikrinti limitą
+            <input type="checkbox" name="checkLimit" value="1" <% if(fields.checkLimit == 1) { %> checked <% } %> ><br><br>
+            
+            <div class="mb-3 row">
+                <label class="col-sm-1 col-form-label">Tiekėjs</label>
+                <div class="col-sm-2">
+                    <select class="form-select" name="supplier" id="supplier" required>
+                        <option value="">-</option> 
+                        <% if(typeof suppliers != 'undefined') { %>
+                            <% suppliers.forEach(function(supplier) {  %> 
+                                <option value="<%=supplier.id%>" <% if(fields.supplier == supplier.id){ %> selected <% } %> ><%=supplier.name%> </option> 
+                            <% }) %>
+                        <% } %>  
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-1 col-form-label">Medžiagos tipas</label>
+                <div class="col-sm-2">
+                    <select class="form-select" name="materialType" id="materialType" required>
+                        <option value="1" <% if(fields.materialType == 1){ %> selected <% } %> >molis</option> 
+                        <option value="2" <% if(fields.materialType == 2){ %> selected <% } %> >glazūra</option> 
+                    </select><br><br>
+                </div>
+            </div>
+    
+            <input type="number" name="materialId" value="<%=materialId%>" hidden>
+            <button type="submit" class="btn btn-primary">Išsaugoti</button>
+        </form><br> 
+
+<% if(typeof errorsList != 'undefined') { %>
+    <% errorsList.forEach(function(error) {  %> 
+        <div class="alert alert-danger" role="alert">
+            <%= error.message %>  
+          </div>
+    <% }) %>
+<% } %>  
+
+    </div>
+</div>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        </style>
+
+</head>
+<body>
+    <h3>Ataskata</h3>
+    <h4>Laikotarpis: <%=from%> - <%=to%></h4>
+    <table style="width:50%; margin: 0 auto 0 auto;">
+        <tr>
+          <td>Id</td>
+          <td>Data</td>
+          <td>Užsakymo tipas</td>
+          <td>Suma</td>
+        </tr>
+        <% orders.forEach(function(order) {  %>  
+            <tr>
+                <td><%=order.id%></td>
+                <td><%=order.date%></td>
+                <td><%=order.orderType%></td>
+                <td><%=order.sum%></td>
+              </tr>
+        <% }) %>
+        
+      </table>
+    
+</body>
+</html>

@@ -1,0 +1,62 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded" style="width: 90%;">
+
+        <p>
+            <strong>užsakymo id: </strong> <%=orderId%> | <strong>Būsena: </strong> <span <% if (state == 'naujas') { %> style="color: green;" <%} else if (state == 'įvykdytas') { %>style="color: orange;"<% } else if(state == 'atšauktas') { %>style="color: red;"<% } %>><b><%=state%></b></span>
+        </p>
+
+        <div class="card mb-3" style="max-width: 1200px;">
+            <div class="row g-0 align-items-center" >
+            <div class="col-md-4">
+                <div class="my-img-container" style="width: 320px; height: 240px">
+                    <img src="<%=potteryOrder.photo%>" class="img-responsive" width="320px" height="240px">
+                </div>
+               
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                   <p><strong>Dirbinio tipas:</strong> <%= potteryOrder.potteryType %> </p>
+                   <p><strong>Kiekis:</strong> <%= potteryOrder.amount %> </p>
+                   <textarea readonly rows="4" cols="80"><%=potteryOrder.comment%></textarea>
+                </div>
+            </div>
+            
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-9"></div>
+            <div class="col-2">
+                <select class="form-select" id="stateSelector">
+                    <option value="0">-</option>
+                    <option value="1">Naujas</option>
+                    <option value="2">Įvykdytas</option>
+                    <option value="3">Atšauktas</option>
+                </select>
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-success checkBtn" data-id="<%=orderId%>"><i class="fas fa-check"></i></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+       
+        $( ".checkBtn" ).click(function() {
+          var id =  $( this ).data("id");
+          var value = document.getElementById("stateSelector").value;
+          var states = ['naujas', 'įvykdytas', 'atšauktas']
+          if(value != 0){
+              $.get(`/orders/updateState?id=${id}&state=${value}`).always(function(){
+                window.location.replace(`/orders/orderInfo?orderId=${id}&orderType=${2}&orderState=${states[value - 1]}`)
+              });
+          }
+        });
+        
+    });
+</script>

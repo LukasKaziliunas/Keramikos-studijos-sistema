@@ -5,7 +5,7 @@ const { check, validationResult, Result } = require('express-validator');
 const User = require("../models/User");
 const Client = require("../models/Client")
 const jwt = require('jsonwebtoken')
-const { authenticate } = require("../tools/auth");
+const { authenticate, authenticateClient, authenticateAdmin } = require("../tools/auth");
 
 var router = express.Router();
 
@@ -76,8 +76,7 @@ router.post('/register', [
     check('name', 'vardas neivestas').notEmpty(),
     check('lastname', 'pavarde neivesta').notEmpty(),
     check('phone', 'telefono numeris neivestas').notEmpty(),
-    // password must be at least 5 chars long
-    check('password', 'slaptažodis per trumpas').isLength({ min: 2 }),
+    check('password', 'slaptažodis per trumpas, turi būti nors 8 simboliai').isLength({ min: 8 }),
     check('password', 'slaptažodžiai turi sutapti').custom((value, { req, loc, path }) => {
         if (value == req.body.password2)
             return value;
@@ -108,7 +107,7 @@ router.post('/register', [
                     .then(salt => bcrypt.hash(password, salt))
                     .then(hash => User.save(email, hash, '1'))
                     .then(UserId => Client.save(name, lastname, phone, UserId))
-                    .then(() => { return res.redirect('/'); })
+                    .then(() => { return res.render('account/login', { fields: { email: email, password: password }, successMessage: "jūsų paskyra sukurta" }); })
                     .catch(error => { console.log(error); return res.sendStatus(400) })
             }
         })
@@ -131,10 +130,20 @@ router.get('/accountUpdateForm', function (req, res, next) {
     res.send('user edit form page');
 });
 
-router.get('/profile', authenticate, function (req, res, next) {
-    res.send('account view page');
-    console.log(req.user);
+router.get('/userDelete', authenticateAdmin, function(req, res, next){
+    User.delete(req.query.id).then(() => {
+        return res.sendStatus(200);
+    })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
 });
+
+router.get('/clientUserDelete', authenticateClient, function(req, res, next){
+    User.delete(req.user.id).then(() => {
+        return res.redirect("/account/logout");
+    })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
+});
+
 
 function createCookie(res, name, value, maxage) {
     //jeigu maxage = null, tada slapukas galios tik esamai sesijai.
