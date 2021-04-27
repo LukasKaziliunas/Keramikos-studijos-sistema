@@ -54,43 +54,43 @@ CREATE TABLE OrderState
 	name char (9) NOT NULL,
 	PRIMARY KEY(id)
 );
-INSERT INTO OrderState(id, name) VALUES(1, 'atšauktas');
-INSERT INTO OrderState(id, name) VALUES(2, 'baigtas');
-INSERT INTO OrderState(id, name) VALUES(3, 'naujas');
+INSERT INTO OrderState(id, name) VALUES(1, 'naujas');
+INSERT INTO OrderState(id, name) VALUES(2, 'įvykdytas');
+INSERT INTO OrderState(id, name) VALUES(3, 'atšauktas');
 
 CREATE TABLE OrderType
 (
 	id integer,
-	name char (10) NOT NULL,
+	name char (15) NOT NULL,
 	PRIMARY KEY(id)
 );
-INSERT INTO OrderType(id, name) VALUES(1, 'individual');
-INSERT INTO OrderType(id, name) VALUES(2, 'purchase');
+INSERT INTO OrderType(id, name) VALUES(1, 'individualus');
+INSERT INTO OrderType(id, name) VALUES(2, 'pirkimo');
 
 CREATE TABLE PaymentType
 (
 	id integer,
-	name char (8) NOT NULL,
+	name char (15) NOT NULL,
 	PRIMARY KEY(id)
 );
-INSERT INTO PaymentType(id, name) VALUES(1, 'cash');
-INSERT INTO PaymentType(id, name) VALUES(2, 'paypal');
-INSERT INTO PaymentType(id, name) VALUES(3, 'swedbank');
+INSERT INTO PaymentType(id, name) VALUES(1, 'kortele');
+INSERT INTO PaymentType(id, name) VALUES(2, 'grynaisiais');
 
 CREATE TABLE PotteryType
 (
 	id integer,
 	name char (9) NOT NULL,
+	price double,
 	PRIMARY KEY(id)
 );
-INSERT INTO PotteryType(id, name) VALUES(1, 'vaza');
-INSERT INTO PotteryType(id, name) VALUES(2, 'lėkštė');
-INSERT INTO PotteryType(id, name) VALUES(3, 'dėžutė');
-INSERT INTO PotteryType(id, name) VALUES(4, 'žvakidė');
-INSERT INTO PotteryType(id, name) VALUES(5, 'vazonas');
-INSERT INTO PotteryType(id, name) VALUES(6, 'puodelis');
-INSERT INTO PotteryType(id, name) VALUES(7, 'dubenėlis');
-INSERT INTO PotteryType(id, name) VALUES(8, 'skulptūra');
+INSERT INTO PotteryType(id, name, price) VALUES(1, 'vaza', 70);
+INSERT INTO PotteryType(id, name, price) VALUES(2, 'lėkštė', 60);
+INSERT INTO PotteryType(id, name, price) VALUES(3, 'dėžutė', 40);
+INSERT INTO PotteryType(id, name, price) VALUES(4, 'žvakidė', 50);
+INSERT INTO PotteryType(id, name, price) VALUES(5, 'vazonas', 60);
+INSERT INTO PotteryType(id, name, price) VALUES(6, 'puodelis', 20);
+INSERT INTO PotteryType(id, name, price) VALUES(7, 'dubenėlis', 25);
+INSERT INTO PotteryType(id, name, price) VALUES(8, 'skulptūra', 40);
 
 CREATE TABLE units
 (
@@ -105,12 +105,12 @@ INSERT INTO units(id, name) VALUES(3, 'l');
 CREATE TABLE UserType
 (
 	id integer,
-	name char (6) NOT NULL,
+	name char (20) NOT NULL,
 	PRIMARY KEY(id)
 );
-INSERT INTO UserType(id, name) VALUES(1, 'client');
-INSERT INTO UserType(id, name) VALUES(2, 'worker');
-INSERT INTO UserType(id, name) VALUES(3, 'admin');
+INSERT INTO UserType(id, name) VALUES(1, 'klientas');
+INSERT INTO UserType(id, name) VALUES(2, 'darbuotojas');
+INSERT INTO UserType(id, name) VALUES(3, 'administratorius');
 
 CREATE TABLE Material
 (
@@ -122,11 +122,11 @@ CREATE TABLE Material
 	units integer,
 	materialType integer,
 	id integer AUTO_INCREMENT,
-	fk_Supplier integer NOT NULL,
+	fk_Supplier integer,
 	PRIMARY KEY(id),
 	FOREIGN KEY(materialType) REFERENCES MaterialType (id),
 	FOREIGN KEY(units) REFERENCES units (id),
-	CONSTRAINT provides FOREIGN KEY(fk_Supplier) REFERENCES Supplier (id) ON DELETE CASCADE
+	CONSTRAINT provides FOREIGN KEY(fk_Supplier) REFERENCES Supplier (id) ON DELETE SET NULL
 );
 
 CREATE TABLE `User`
@@ -156,12 +156,10 @@ CREATE TABLE MaterialOrder
 	amount double,
 	price double,
 	date date,
-	units integer,
 	id integer AUTO_INCREMENT,
-	fk_Material integer NOT NULL,
+	fk_Material integer,
 	PRIMARY KEY(id),
-	FOREIGN KEY(units) REFERENCES units (id),
-	CONSTRAINT included FOREIGN KEY(fk_Material) REFERENCES Material (id)
+	CONSTRAINT included FOREIGN KEY(fk_Material) REFERENCES Material (id) ON DELETE SET NULL
 );
 
 CREATE TABLE Worker
@@ -185,12 +183,12 @@ CREATE TABLE `Order`
 	orderType integer,
 	deliveryType integer,
 	id integer AUTO_INCREMENT,
-	fk_Client integer NOT NULL,
+	fk_Client integer,
 	PRIMARY KEY(id),
 	FOREIGN KEY(state) REFERENCES OrderState (id),
 	FOREIGN KEY(orderType) REFERENCES OrderType (id),
 	FOREIGN KEY(deliveryType) REFERENCES DeliveryType (id),
-	CONSTRAINT submits FOREIGN KEY(fk_Client) REFERENCES Client (id)
+	CONSTRAINT submits FOREIGN KEY(fk_Client) REFERENCES Client (id) ON DELETE SET NULL
 );
 
 CREATE TABLE Pottery
@@ -226,19 +224,18 @@ CREATE TABLE Photo
 (
 	path varchar (255),
 	id integer AUTO_INCREMENT,
-	fk_Pottery integer NOT NULL,
+	fk_Pottery integer,
 	PRIMARY KEY(id),
-	CONSTRAINT have FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE
+	CONSTRAINT have FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE SET NULL
 );
 
-CREATE TABLE PoterryMaterial
+CREATE TABLE PotteryMaterial
 (
 	amount double,
 	id integer AUTO_INCREMENT,
 	fk_Pottery integer NOT NULL,
 	fk_Material integer NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(units) REFERENCES units (id),
 	CONSTRAINT madeof FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE,
 	CONSTRAINT belongs FOREIGN KEY(fk_Material) REFERENCES Material (id) ON DELETE CASCADE
 );
@@ -246,23 +243,25 @@ CREATE TABLE PoterryMaterial
 CREATE TABLE purchasedPottery
 (
 	amount integer,
+	photo varchar (255),
 	id integer AUTO_INCREMENT,
 	fk_Order integer NOT NULL,
-	fk_Pottery integer NOT NULL,
+	fk_Pottery integer,
 	PRIMARY KEY(id),
 	CONSTRAINT belongs2 FOREIGN KEY(fk_Order) REFERENCES `Order` (id) ON DELETE CASCADE,
-	CONSTRAINT included2 FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE CASCADE
+	CONSTRAINT included2 FOREIGN KEY(fk_Pottery) REFERENCES Pottery (id) ON DELETE SET NULL
 );
 
 CREATE TABLE PotteryOrder
 (
 	comment text,
 	potteryType integer,
+	amount integer,
 	id integer AUTO_INCREMENT,
 	fk_Order integer NOT NULL,
 	fk_Photo integer,
 	PRIMARY KEY(id),
 	FOREIGN KEY(potteryType) REFERENCES PotteryType (id),
-	CONSTRAINT is_ FOREIGN KEY(fk_Order) REFERENCES `Order` (id),
-	CONSTRAINT have FOREIGN KEY(fk_Photo) REFERENCES Photo (id)
+	CONSTRAINT is_ FOREIGN KEY(fk_Order) REFERENCES `Order` (id) ON DELETE CASCADE,
+	CONSTRAINT have2 FOREIGN KEY(fk_Photo) REFERENCES Photo (id) ON DELETE SET NULL
 );
