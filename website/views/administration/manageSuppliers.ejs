@@ -1,2 +1,32 @@
-tiekeju valdymas
-<a href="/administration/supplierCreateForm"> prideti tiekeja</a>
+
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <a href="/administration/supplierCreateForm"><button class="btn btn-primary" >Pridėti tiekėją</button></a>
+        
+        <h2>Tiekėjai</h2>
+        <table class="table table-hover" style="width: 500px;">
+            <tr>
+                <th>Pavadinimas</th>
+                <th>el. paštas</th>
+                <th>telefonas</th>
+                <th></th>
+            </tr>
+            <% if(typeof suppliers != 'undefined') { %>
+                <% suppliers.forEach(function(supplier) {  %> 
+                    <tr>
+                        <td><%= supplier.name %></td>
+                        <td><%= supplier.email %></td>
+                        <td><%= supplier.phone %></td>
+                        <td>
+                            <div style="margin-left: auto; margin-right: auto; width: 80px;">
+                                <button class="btn btn-secondary btn-sm btnEdit" type="button" data-id="<%=supplier.id%>"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm btnRemove" type="button" data-id="<%=supplier.id%>"><i class="fas fa-window-close"></i></button>
+                            </div>
+                        </td>
+                      </tr>
+                <% }) %>
+            <% } %> 
+        </table>
+        
+    </div>
+</div>

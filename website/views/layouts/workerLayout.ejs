@@ -52,31 +52,31 @@
         <hr>
         <ul class="nav nav-pills flex-column mb-auto">
           <li class="nav-item">
-            <a href="/inventory/" class="nav-link active">
+            <a href="/inventory/" class="nav-link link-dark <% if(typeof active != 'undefined' && active === 1) { %> active <% } %>">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
               Namai
             </a>
           </li>
           <li>
-            <a href="/reports/reportsMain" class="nav-link link-dark">
+            <a href="/reports/reportsMain" class="nav-link link-dark <% if(typeof active != 'undefined' && active === 2) { %> active <% } %>">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
               Ataskaitos
             </a>
           </li>
           <li>
-            <a href="/orders/ordersList" class="nav-link link-dark">
+            <a href="/orders/ordersList" class="nav-link link-dark <% if(typeof active != 'undefined' && active === 3) { %> active <% } %>">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#table"/></svg>
               Užsakymai
             </a>
           </li>
           <li>
-            <a href="/inventory/potteryList" class="nav-link link-dark">
+            <a href="/inventory/potteryList" class="nav-link link-dark <% if(typeof active != 'undefined' && active === 4) { %> active <% } %>">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
               Keramikos dirbiniai
             </a>
           </li>
           <li>
-            <a href="/inventory/manageMaterials" class="nav-link link-dark">
+            <a href="/inventory/manageMaterials" class="nav-link link-dark <% if(typeof active != 'undefined' && active === 5) { %> active <% } %>">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
               Medžiagos
             </a>

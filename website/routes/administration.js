@@ -16,12 +16,12 @@ const myValidationResult = validationResult.withDefaults({
 
 /* GET users listing. */
 router.get('/', authenticateAdmin, function (req, res, next) {
-  res.render('administration/adminHomeView', { layout: './layouts/adminLayout', auth: true });
+  res.render('administration/manageUsers', { layout: './layouts/adminLayout', active: 1 });
 });
 
 //returns supplier form
 router.get('/supplierCreateForm', authenticateAdmin, function (req, res, next) {
-  res.render('administration/supplierCreateForm', { layout: './layouts/adminLayout', fields: {} });
+  res.render('administration/supplierCreateForm', { layout: './layouts/adminLayout', fields: {}, active: 2 });
 });
 
 //gets supplier's data and saves it
@@ -36,12 +36,12 @@ router.post('/supplierCreate', authenticateAdmin, [
   if (hasErrors) {
     //returns form with errors
     const errorsList = myValidationResult(req).array();
-    res.render('administration/supplierCreateForm', { layout: './layouts/adminLayout', fields: req.body, errorsList: errorsList });
+    res.render('administration/supplierCreateForm', { layout: './layouts/adminLayout', fields: req.body, errorsList: errorsList, active: 2  });
   }
   else {
     //saves the supplier
     Supplier.save(req.body.name, req.body.email, req.body.phone)
-    .then(()=> res.redirect('/administration'))
+    .then(()=> res.redirect('/administration/suppliers'))
     .catch(error => { console.log(error); res.sendStatus(500) })
   }
 });
@@ -51,12 +51,21 @@ router.get('/supplierUpdateForm', authenticateAdmin, function (req, res, next) {
 });
 
 router.get('/suppliers', function (req, res, next) {
-  res.render('administration/manageSuppliers', { layout: './layouts/adminLayout' });
+  Supplier.getAll().then(suppliers => {
+      res.render('administration/manageSuppliers', { layout: './layouts/adminLayout', suppliers: suppliers, active: 2 });
+  })
+
 });
 
 router.get('/users', function (req, res, next) {
-  res.render('administration/manageUsers', { layout: './layouts/adminLayout' });
+  res.render('administration/manageUsers', { layout: './layouts/adminLayout', active: 1 });
 });
+
+router.get('/workerForm', function (req, res, next) {
+  res.render('administration/workerForm', { layout: './layouts/adminLayout', fields: {}, active: 1 });
+});
+
+
 
 router.get('/getUsers', function (req, res, next) {
   var id = req.query.id;

@@ -18,7 +18,7 @@ router.get('/reportsMain', authenticateWorker, function(req, res, next) {
   let year = date_ob.getFullYear();
   let fullDate = date + "-" + month + "-" + year;
 
-  return res.render('reports/reportsMain', { layout: './layouts/workerLayout', pdfs: files, date: fullDate})
+  return res.render('reports/reportsMain', { layout: './layouts/workerLayout', pdfs: files, date: fullDate, active: 2})
 });
 
 router.post('/generateReport', authenticateWorker, function(req, res, next) {

@@ -101,7 +101,7 @@ router.get('/ordersList', authenticateWorker, function(req, res, next) {
     page = req.query.page;
   }
   Order.getFullOrderDetails(filter, page - 1).then(orderList => {
-      return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: orderList, filter: filter, page: page  }); 
+      return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: orderList, filter: filter, page: page, active: 3  }); 
   })
 });
 
@@ -113,12 +113,12 @@ router.get('/orderInfo', authenticateWorker, function(req, res, next) {
   if(orderType == 1){
     //individualus
     PotteryOrder.get(orderId).then(potteryOrder => {
-        return res.render('orders/individualOrderInfo', { layout: './layouts/workerLayout', potteryOrder: potteryOrder, orderId: orderId, state: orderState });
+        return res.render('orders/individualOrderInfo', { layout: './layouts/workerLayout', potteryOrder: potteryOrder, orderId: orderId, state: orderState, active: 3 });
     })
   }else if(orderType == 2){
     //pirkimo
     PurchasedPottery.get(orderId).then(items => {
-        return res.render('orders/purchaseOrderInfo', { layout: './layouts/workerLayout', items: items, orderId: orderId, state: orderState });
+        return res.render('orders/purchaseOrderInfo', { layout: './layouts/workerLayout', items: items, orderId: orderId, state: orderState, active: 3 });
     })
   }else{
     return res.sendStatus(400);

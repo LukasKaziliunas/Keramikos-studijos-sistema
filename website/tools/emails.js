@@ -38,6 +38,24 @@ exports.sendMaterialOrder = function (names, orderAmounts, prices, units, total)
 
 }
 
+exports.sendPassword = function(email, password){
+    console.log(email, password)
+    var mailOptions = {
+        from: 'keramikosstudija111@yahoo.com',
+        to: email,
+        subject: 'Naujas slaptažodis',
+        text: `Jūsų naujas slaptažodis yra ${password}.`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
 function renderOrder(names, orderAmounts, prices, units, total, config) {
     return new Promise(function (resolve, reject) {
         if (names == undefined || orderAmounts == undefined || prices == undefined || units == undefined || names.length == 0) {

@@ -6,7 +6,6 @@ exports.save = function(name, lastname, phone, userId){
     let sql = "INSERT INTO `client` ( `id`, `name`, `lastname`, `phone`, `fk_User`) VALUES ( ?, ? , ?, ?, ? )";
     var inserts = [userId, name, lastname, phone, userId];
     sql = format(sql, inserts);
-    console.log(sql);
     return mysql.insert(sql);
 }
 

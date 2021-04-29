@@ -6,6 +6,9 @@ const User = require("../models/User");
 const Client = require("../models/Client")
 const jwt = require('jsonwebtoken')
 const { authenticate, authenticateClient, authenticateAdmin } = require("../tools/auth");
+const emailer = require("../tools/emails");
+const crypto = require('crypto');
+
 
 var router = express.Router();
 
@@ -114,8 +117,47 @@ router.post('/register', [
     }
 });
 
+router.get('/changePasswordForm', function (req, res, next) {
+    return res.render('account/changePasswordForm', { layout: './layouts/clientLayout', fields: {} })
+});
+
+router.post('/changePassword', function (req, res, next) {
+    res.sendStatus(200);
+});
+
 router.get('/emailForm', function (req, res, next) {
-    res.send('email form page');
+    return res.render('account/emailForm', { fields: {} })
+});
+
+router.post('/sendNewPassword', [
+    check('email', 'neteisingas el. pašto adresas').isEmail(),
+], function (req, res, next) {
+
+    const hasErrors = !myValidationResult(req).isEmpty();
+
+    if (hasErrors) {  // form has errors
+        const errorsList = myValidationResult(req).array();
+        return res.render('account/emailForm', { errorsList: errorsList, fields: req.body });
+    }
+    else { //form is valid
+        User.getByEmail(req.body.email).then(gotUser => {
+            if (gotUser) // if user is returned then this will be true, if its undefined, then else will be executed
+            {
+                var randomPassword = crypto.randomBytes(4).toString('hex');
+                bcrypt.genSalt(5)
+                    .then(salt => bcrypt.hash(randomPassword, salt))
+                    .then(hash => User.updatePassword(gotUser.id, hash))
+                    .then(() => {
+                        emailer.sendPassword(req.body.email, randomPassword);
+                        return res.render('account/login', { fields: {}, successMessage: "Naujas slaptažodis išsiųstas į jūsų el. paštą." });
+                    })
+            } 
+            else // user dont exist
+            {
+                return res.render('account/emailForm', { errorsList: [ {message: "paskyra su tokiu el. paštu neegzistuoja."}], fields: req.body });
+            }
+        })
+    }
 });
 
 router.get('/registerForm', function (req, res, next) {

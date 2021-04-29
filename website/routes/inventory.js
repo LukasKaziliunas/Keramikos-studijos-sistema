@@ -25,12 +25,12 @@ const myValidationResult = validationResult.withDefaults({
 });
 
 router.get('/', authenticateWorker, function (req, res, next) {
-  res.render('inventory/workerHomeView', { layout: './layouts/workerLayout' });
+  res.render('inventory/workerHomeView', { layout: './layouts/workerLayout', active: 1 });
 });
 
 router.get('/potteryList', authenticateWorker, function (req, res, next) {
   Pottery.getListItems().then(items => {
-    return res.render('inventory/potteryList', { layout: './layouts/workerLayout', items: items });
+    return res.render('inventory/potteryList', { layout: './layouts/workerLayout', items: items, active: 4 });
   })
   .catch(err => { console.log(err); return res.sendStatus(500) })
   
@@ -41,7 +41,7 @@ router.get('/potteryCreateForm', authenticateWorker, function (req, res, next) {
   let matterialsP = Material.getAll();
 
   Promise.all([potteryTypesP, matterialsP]).then(values => {
-    return res.render('inventory/potteryCreateForm', { layout: './layouts/workerLayout', fields: {}, types: values[0], materials: values[1] });
+    return res.render('inventory/potteryCreateForm', { layout: './layouts/workerLayout', fields: {}, types: values[0], materials: values[1], active: 4 });
 
   }).catch(err => { console.log(err); return res.sendStatus(500) })
 
@@ -94,7 +94,7 @@ router.get('/potteryUpdateForm/:id', authenticateWorker, function (req, res, nex
   let allMatterialsP = Material.getAll();
 
   Promise.all([potteryTypesP, potteryP, photosP, potteryMaterialsP, allMatterialsP]).then(values => {
-     return res.render('inventory/potteryEditForm', { layout: './layouts/workerLayout', types: values[0], fields: values[1], photos: values[2], potteryMateials: values[3], allMaterials: values[4] }) 
+     return res.render('inventory/potteryEditForm', { layout: './layouts/workerLayout', types: values[0], fields: values[1], photos: values[2], potteryMateials: values[3], allMaterials: values[4], active: 4 }) 
   })
 });
 
@@ -145,7 +145,7 @@ router.get('/manageMaterials', authenticateWorker, function (req, res, next) {
   let clayP = Material.getClay();
   let glazeP = Material.getGlaze();
   Promise.all([clayP, glazeP]).then(values => {
-    return res.render('inventory/manageMaterials', { layout: './layouts/workerLayout', clays: values[0], glazes: values[1] })
+    return res.render('inventory/manageMaterials', { layout: './layouts/workerLayout', clays: values[0], glazes: values[1], active: 5 })
   })
     .catch(error => { console.log(error); return res.sendStatus(500) })
 });
@@ -155,7 +155,7 @@ router.get('/materialsOrder', authenticateWorker, function (req, res, next) {
   let lackingMaterials = Material.getLackingMaterials();
 
   Promise.all([MaterialsP, lackingMaterials]).then(values => {
-    return res.render('inventory/materialsOrder', { layout: './layouts/workerLayout', allMaterials: values[0] , materials: values[1] })
+    return res.render('inventory/materialsOrder', { layout: './layouts/workerLayout', allMaterials: values[0] , materials: values[1], active: 5 })
   })
 });
 
@@ -187,7 +187,7 @@ router.get('/materialCreateForm', authenticateWorker, function (req, res, next) 
   let unitsP = Units.getUnits();
 
   Promise.all([suppliersP, unitsP]).then(values => {
-    return res.render('inventory/materialCreateForm', { layout: './layouts/workerLayout', suppliers: values[0], units: values[1], fields: {} });
+    return res.render('inventory/materialCreateForm', { layout: './layouts/workerLayout', suppliers: values[0], units: values[1], fields: {}, active: 5 });
   })
   .catch(error => { console.log(error); res.sendStatus(500) })
   
@@ -236,7 +236,7 @@ router.get('/materialEditForm', authenticateWorker, function (req, res, next) {
   var materialP = Material.getById(materialId);
 
   Promise.all([materialP, suppliersP, unitsP]).then(values => {
-    return res.render('inventory/materialEditForm', { layout: './layouts/workerLayout', fields: values[0], suppliers: values[1], units: values[2], materialId: materialId });
+    return res.render('inventory/materialEditForm', { layout: './layouts/workerLayout', fields: values[0], suppliers: values[1], units: values[2], materialId: materialId, active: 5 });
   })
   .catch(error => { console.log(error); res.sendStatus(500) })
 });

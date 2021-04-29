@@ -9,16 +9,23 @@
 
     <div class="table-responsive">
         <table class="table table-bordered">
-            <tr>
-                <th>Id</th>
-                <th>Data</th>
-                <th>Kaina</th>
-                <th>Mokėjimo būdas</th>
-                <th>Statusas</th>
-                <th>Užsakymo tipas</th>
-                <th></th>
-              </tr>
+             
                 <% if(typeof orders != 'undefined') { %>
+                  <% if(orders.length == 0) { %> 
+                    <div class="alert alert-info" role="alert">
+                      nėra užsakymų.  
+                    </div> 
+                    <% }else { %>
+                      <tr>
+                        <th>Id</th>
+                        <th>Data</th>
+                        <th>Kaina</th>
+                        <th>Mokėjimo būdas</th>
+                        <th>Statusas</th>
+                        <th>Užsakymo tipas</th>
+                        <th></th>
+                      </tr>
+                    <% } %> 
                     <% orders.forEach(function(order) {  %> 
                         <tr>
                             <td><%=order.id%></td>
