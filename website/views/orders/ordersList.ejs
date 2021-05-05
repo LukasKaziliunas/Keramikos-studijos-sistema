@@ -12,6 +12,7 @@ height: 100%;
 <div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
 
     <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <input type="text" id="id" placeholder="id" style="width: 7ch; margin-right: 5px;"><button type="button" onclick="searchById()" class="btn btn-primary" style="margin-right: 15px;"><i class="fas fa-search"></i></button>
         <a href="/orders/ordersList?filter=1"><button type="button" class="btn btn-primary">Nauji</button></a> 
         <a href="/orders/ordersList?filter=2"><button type="button" class="btn btn-primary">Įvykdyti</button></a>
         <a href="/orders/ordersList?filter=3"><button type="button" class="btn btn-primary">Atšaukti</button></a>
@@ -102,5 +103,12 @@ height: 100%;
         });
         
     });
+
+    function searchById(){
+        var id = document.getElementById("id").value;
+        if(id != ""){
+            location.replace(`/orders/ordersList?filter=0&id=${id}`);
+        }
+    }
 </script>
 

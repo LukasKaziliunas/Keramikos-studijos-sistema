@@ -3,11 +3,13 @@ var express = require('express');
 const { body } = require('express-validator');
 var router = express.Router();
 const Order = require("../models/Order");
+const Photo = require("../models/Photo");
 const Payment = require("../models/Payment");
 const Pottery = require("../models/Pottery");
 const PotteryOrder = require("../models/PotteryOrder");
 const PurchasedPottery = require("../models/PurchasedPottery");
 const { authenticateClient, authenticateWorker } = require("../tools/auth");
+const { v4: uuidv4 } = require('uuid');
 
 router.get('/orderConfirmForm', authenticateClient, async function(req, res, next) {
 
@@ -16,30 +18,43 @@ router.get('/orderConfirmForm', authenticateClient, async function(req, res, nex
   var deliveryTypesP = Order.getDeliveryTypes();
   var PaymentTypesP = Payment.getPaymentTypes();
 
-  if(orderType == 2)
+  if(orderType == 2) //pirkimo
   {
     
     Promise.all([deliveryTypesP, PaymentTypesP]).then(values => {
       return res.render('clients/orderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: total, email: req.user.email });
     }).catch(err => { console.log(err); return res.sendStatus(500) })
-  }else if(orderType == 1)
-  {
-    console.log(req.query)
-    var orderDetails = {
-      photo: req.query.photo,
-      potteryType: req.query.potteryType,
-      amount: req.query.amount,
-      comment: req.query.comment
-    }
-
-
-    let potteryTypePriceP = Pottery.getTypePrice(req.query.potteryType);
-    Promise.all([deliveryTypesP, PaymentTypesP, potteryTypePriceP]).then(values => {
-      return res.render('clients/individualOrderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: (values[2].price * req.query.amount).toFixed(2), orderDetails: JSON.stringify(orderDetails) });
-    }).catch(err => { console.log(err); return res.sendStatus(500) })
   }else{
     return res.sendStatus(400);
   }
+});
+
+router.post('/individualOrderConfirmForm', authenticateClient, async function(req, res, next) {
+  //let orderType = req.body.orderType;
+  var orderDetails = {
+    potteryType: req.body.potteryType,
+    amount: req.body.amount,
+    comment: req.body.comment
+  }
+  var deliveryTypesP = Order.getDeliveryTypes();
+  var PaymentTypesP = Payment.getPaymentTypes();
+  var potteryTypePriceP = Pottery.getTypePrice(req.body.potteryType);
+  
+    if(req.files != null){
+      var userPhoto = req.files.userPhoto;
+      savePhoto(userPhoto).then(photoId => {
+        orderDetails.photo = photoId;
+        Promise.all([deliveryTypesP, PaymentTypesP, potteryTypePriceP]).then(values => {
+          return res.render('clients/individualOrderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: (values[2].price * req.body.amount).toFixed(2), orderDetails: JSON.stringify(orderDetails) });
+        })
+        .catch(err => { console.log(err); return res.sendStatus(500) })
+      })
+    }else{
+      orderDetails.photo = req.body.photo;
+      Promise.all([deliveryTypesP, PaymentTypesP, potteryTypePriceP]).then(values => {
+      return res.render('clients/individualOrderConfirm', { layout: './layouts/clientLayout', auth: true, delivery: values[0], payments: values[1], price: (values[2].price * req.body.amount).toFixed(2), orderDetails: JSON.stringify(orderDetails) });
+      }).catch(err => { console.log(err); return res.sendStatus(500) })
+    }
 });
 
 router.post('/createOrder', authenticateClient, function(req, res, next) {
@@ -59,7 +74,8 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
         return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: totalToCents, orderId: orderId, paymentType: req.body.paymentType, email: req.user.email }); 
       }else{
         Payment.save(total, paymentType, "", orderId)
-        .then( () => { return res.redirect("/") });
+        .then( () => { return res.redirect("/") })
+        .catch(error => { console.log(error); return res.sendStatus(500) });
       }
       
     })
@@ -74,7 +90,8 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
         return res.render('clients/payment', { layout: './layouts/clientLayout', auth: true, stripePublicKey: stripePublicKey, price: totalToCents, orderId: orderId, paymentType: req.body.paymentType, email: req.user.email }); 
       }else{
         Payment.save(total, paymentType, "", orderId)
-        .then( () => { return res.redirect("/") });
+        .then( () => { return res.redirect("/") })
+        .catch(error => { console.log(error); return res.sendStatus(500) });
       }
 
     })
@@ -94,15 +111,23 @@ router.post('/purchase', authenticateClient, function(req, res, next) {
 router.get('/ordersList', authenticateWorker, function(req, res, next) {
   var filter = 0;
   var page = 1;
-  if(req.query.filter != undefined){
-    filter = req.query.filter;
+  if(req.query.id != undefined){
+    Order.getFullOrderDetailsById(req.query.id).then(order => {
+      return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: order, filter: filter, page: page, active: 3  }); 
+    })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
+  }else{
+    if(req.query.filter != undefined){
+      filter = req.query.filter;
+    }
+    if(req.query.page != undefined){
+      page = req.query.page;
+    }
+    Order.getFullOrderDetails(filter, page - 1).then(orderList => {
+        return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: orderList, filter: filter, page: page, active: 3  }); 
+    })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
   }
-  if(req.query.page != undefined){
-    page = req.query.page;
-  }
-  Order.getFullOrderDetails(filter, page - 1).then(orderList => {
-      return res.render('orders/ordersList', { layout: './layouts/workerLayout', orders: orderList, filter: filter, page: page, active: 3  }); 
-  })
 });
 
 router.get('/orderInfo', authenticateWorker, function(req, res, next) {
@@ -115,11 +140,13 @@ router.get('/orderInfo', authenticateWorker, function(req, res, next) {
     PotteryOrder.get(orderId).then(potteryOrder => {
         return res.render('orders/individualOrderInfo', { layout: './layouts/workerLayout', potteryOrder: potteryOrder, orderId: orderId, state: orderState, active: 3 });
     })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
   }else if(orderType == 2){
     //pirkimo
     PurchasedPottery.get(orderId).then(items => {
         return res.render('orders/purchaseOrderInfo', { layout: './layouts/workerLayout', items: items, orderId: orderId, state: orderState, active: 3 });
     })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
   }else{
     return res.sendStatus(400);
   }
@@ -136,11 +163,13 @@ router.get('/clientOrderInfo', authenticateClient, function(req, res, next) {
     PotteryOrder.get(orderId).then(potteryOrder => {
         return res.render('orders/clientIndividualOrderInfo', { layout: './layouts/clientLayout', auth: true, potteryOrder: potteryOrder, orderId: orderId, state: orderState, email: req.user.email });
     })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
   }else if(orderType == 2){
     //pirkimo
     PurchasedPottery.get(orderId).then(items => {
         return res.render('orders/clientPurchaseOrderInfo', { layout: './layouts/clientLayout', auth: true, items: items, orderId: orderId, state: orderState, email: req.user.email });
     })
+    .catch(error => { console.log(error); return res.sendStatus(500) })
   }else{
     return res.sendStatus(400);
   }
@@ -161,6 +190,29 @@ router.get('/userOrders', authenticateClient, function(req, res, next) {
   })
   .catch(err => { console.log(err); return res.sendStatus(500) })
 });
+
+
+function savePhoto(file){
+
+  return new Promise(function(resolve, reject){
+
+    if(file.mimetype == 'image/jpeg' || file.mimetype == 'image/png'){
+      let photoName = uuidv4();
+      uploadPath = __dirname + '/../public/images/' + photoName + ".jpg";
+      file.mv(uploadPath, function (err) {   
+        if (err)
+          reject(err);
+        else{
+          Photo.save("/static/images/" + photoName + ".jpg", -1).then(photoId => {
+            resolve(photoId);
+          }).catch(err => reject(err));
+        }
+      }); 
+    }else{
+      reject("wrong file format");
+    }
+  });
+}
 
 module.exports = router;
 

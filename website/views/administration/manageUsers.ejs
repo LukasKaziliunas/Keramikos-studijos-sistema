@@ -12,7 +12,7 @@
 
     <div class="shadow p-3 mb-5 bg-body rounded scroll">
         <div >
-            <a href="/administration/workerForm"><button class="btn btn-primary" type="button">Registruoti keramiką</button></a>
+            <a href="/administration/workerCreateForm"><button class="btn btn-primary" type="button">Registruoti keramiką</button></a>
         </div>
         <hr>
         <div class="row">
@@ -27,6 +27,10 @@
               <div class="col-md-2">
                 <label for="to" class="form-label">Pavardė</label>
                 <input type="text" name="lname" class="form-control" id="lname">
+              </div>
+              <div class="col-md-2">
+                <label for="to" class="form-label">Telefonas</label>
+                <input type="text" name="phone" class="form-control" id="phone">
               </div>
               <div class="col-md-2">
                 <label for="gen" class="form-label"> </label>
@@ -65,6 +69,7 @@
     var id = "";
     var name = "";
     var lname = "";
+    var phone = "";
 
     var prev = document.getElementById("prev");
     var curr = document.getElementById("curr");
@@ -74,7 +79,8 @@
          id = document.getElementById("id").value;
          name = document.getElementById("name").value;
          lastname = document.getElementById("lname").value;
-        getUsers(id,name,lastname,page);
+         phone = document.getElementById("phone").value;
+        getUsers(id,name,lastname,phone,page);
     }
 
     function pagePrev(){
@@ -87,7 +93,7 @@
             }
             curr.innerHTML = page;
             next.innerHTML = page + 1;
-            getUsers(id,name,lastname,page);
+            getUsers(id,name,lastname,phone,page);
         }
     }
 
@@ -96,10 +102,10 @@
             prev.innerHTML = page - 1;  
             curr.innerHTML = page;
             next.innerHTML = page + 1;
-            getUsers(id,name,lastname,page);
+            getUsers(id,name,lastname,phone,page);
     }
 
-    function getUsers(id, name, lname, page){
+    function getUsers(id, name, lname, phone, page){
         var usersList = document.getElementById("usersList");
         var html = `<div class="table-responsive">
                     <table class="table table-bordered">
@@ -111,7 +117,7 @@
                     <th>telefonas</th>
                     <th></th>
                     </tr>`;
-        $.get( `/administration/getUsers?id=${id}&name=${name}&lname=${lname}&page=${page}`, function( data ) {
+        $.get( `/administration/getUsers?id=${id}&name=${name}&lname=${lname}&phone=${phone}&page=${page}`, function( data ) {
             data.forEach(user => {
                 html = html + `<tr><td>${user.id}</td>
                                 <td>${user.name}</td>
@@ -134,6 +140,11 @@
     
     $(document).ready(function () {
         
+        $("#usersList").delegate(".btnEdit", "click", function(){
+               var id = $(this).data("id");
+               window.location.replace(`/administration/userEditForm?id=${id}`);
+        })
+
         $("#usersList").delegate(".btnRemove", "click", function(){
             if(confirm('Ar tikrai uždaryti šią paskyrą ?')){
                var id = $(this).data("id");
@@ -147,23 +158,6 @@
             }
             
         })
-
-        
-        /*$(".btnRemove").click(function() {
-            if(confirm('Ar tikrai uždaryti šią paskyrą ?')){
-                var id = $(this).data("id");
-                $.get(`/account/userDelete?id=${id}`).done(function(){
-                    window.location.reload(true);
-                }).fail(function() {
-                    alert("klaida trinant");
-                });
-            }
-        });*/
-
-        $( ".btnEdit" ).click(function() {
-            var id = $(this).data("id");
-            //window.location.replace(`/inventory/materialEditForm?id=${id}`);
-        });
      
     });
     

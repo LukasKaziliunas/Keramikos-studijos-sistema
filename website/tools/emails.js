@@ -12,30 +12,31 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-exports.sendMaterialOrder = function (names, orderAmounts, prices, units, total) {
-
-    readConfig()
-    .then(config => {
-        { return renderOrder(names, orderAmounts, prices, units, total, config) }
-    })
-    .then(data => {
-        var mailOptions = {
-            from: 'keramikosstudija111@yahoo.com',
-            to: 'kaziliunaslukas@gmail.com',
-            subject: 'Medžiagų pirkimo užsakymas',
-            html: data,
-        };
-
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
-    })
-    .catch(err => console.log(err));
-
+exports.sendMaterialOrder = function (orders, total, supplierEmail) {
+     
+        readConfig()
+        .then(config => {
+            { return renderOrder(orders, total, config) }
+        })
+        .then(data => {
+            var mailOptions = {
+                from: 'keramikosstudija111@yahoo.com',
+                to: supplierEmail,
+                subject: 'Medžiagų pirkimo užsakymas',
+                html: data,
+            };
+    
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                   
+                }
+            });
+        })
+        .catch(err => console.log(err));
+    
 }
 
 exports.sendPassword = function(email, password){
@@ -56,12 +57,12 @@ exports.sendPassword = function(email, password){
     });
 }
 
-function renderOrder(names, orderAmounts, prices, units, total, config) {
+function renderOrder(orders, total, config) {
     return new Promise(function (resolve, reject) {
-        if (names == undefined || orderAmounts == undefined || prices == undefined || units == undefined || names.length == 0) {
+        if ( total == undefined || orders == undefined || orders.length == 0) {
             reject("gauti klaidingi uzsakymo duomenys")
         } else {
-            ejs.renderFile(__dirname + "/templates/materialOrderTempl.ejs", { names: names, amounts: orderAmounts, prices: prices, units: units, total: total, details: config.MaterialOrderDetails }, function (err, data) {
+            ejs.renderFile(__dirname + "/templates/materialOrderTempl.ejs", { orders: orders, total: total, details: config.MaterialOrderDetails }, function (err, data) {
                 if (err) {
                     reject(err);
                 } else {
@@ -69,8 +70,6 @@ function renderOrder(names, orderAmounts, prices, units, total, config) {
                 }
             });
         }
-
-
     })
 }
 

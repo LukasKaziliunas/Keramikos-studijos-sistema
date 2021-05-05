@@ -12,7 +12,9 @@
 <body>
     <h3>Ataskata</h3>
     <h4>Laikotarpis: <%=from%> - <%=to%></h4>
-    <table style="width:50%; margin: 0 auto 0 auto;">
+    <br>
+    <h4>Keramikos dirbinių užsakymai</h4>
+    <table style="width:80%; margin: 0 auto 0 auto;">
         <tr>
           <td>Id</td>
           <td>Data</td>
@@ -24,11 +26,41 @@
                 <td><%=order.id%></td>
                 <td><%=order.date%></td>
                 <td><%=order.orderType%></td>
-                <td><%=order.sum%></td>
+                <td><%=order.sum%> &euro;</td>
               </tr>
         <% }) %>
-        
-      </table>
+            <tr>
+              <td></td>
+              <td></td>
+              <td><b>Bendra suma:</b></td>
+              <td><%=ordersTotal%> &euro;</td>
+            </tr>
+    </table>
+        <br>
+        <h4>Medžiagų užsakymai</h4>
+
+    <table style="width:80%; margin: 0 auto 0 auto;">
+          <tr>
+            <td>Pavadinimas</td>
+            <td>Data</td>
+            <td>Kiekis</td>
+            <td>Suma</td>
+          </tr>
+        <% materialOrders.forEach(function(materialOrder) {  %>  
+            <tr>
+              <td><%=materialOrder.name%></td>
+              <td><%=materialOrder.date%></td>
+              <td><%=materialOrder.amount%> <%=materialOrder.units%></td>
+              <td><%=materialOrder.sum%> &euro;</td>
+            </tr>
+      <% }) %>
+          <tr>
+            <td></td>
+            <td></td>
+            <td><b>Bendra suma:</b></td>
+            <td><%=materialsOrdersTotal%> &euro;</td>
+          </tr>
+    </table>  
     
 </body>
 </html>

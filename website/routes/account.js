@@ -117,12 +117,32 @@ router.post('/register', [
     }
 });
 
-router.get('/changePasswordForm', function (req, res, next) {
-    return res.render('account/changePasswordForm', { layout: './layouts/clientLayout', fields: {} })
+router.get('/changePasswordForm', authenticateClient, function (req, res, next) {
+    return res.render('account/changePasswordForm', { layout: './layouts/clientLayout', auth: true, fields: {} })
 });
 
-router.post('/changePassword', function (req, res, next) {
-    res.sendStatus(200);
+router.post('/changePassword', authenticateClient, [
+    check('password', 'slaptažodis per trumpas, turi būti nors 8 simboliai').isLength({ min: 8 }),
+    check('password', 'slaptažodžiai turi sutapti').custom((value, { req, loc, path }) => {
+        if (value == req.body.password2)
+            return value;
+    })
+], function (req, res, next) {
+
+    const hasErrors = !myValidationResult(req).isEmpty();
+
+    if (hasErrors) {  // form has errors
+        const errorsList = myValidationResult(req).array();
+        return res.render('account/changePasswordForm', { layout: './layouts/clientLayout', auth: true, errorsList: errorsList, fields: req.body })
+    }else{
+        bcrypt.genSalt(5)
+                    .then(salt => bcrypt.hash(req.body.password, salt))
+                    .then(hash => { 
+                        User.updatePassword(req.user.id, hash); 
+                        return res.render('account/changePasswordForm', { layout: './layouts/clientLayout', auth: true, successMessage: "slaptažodis buvo pakeistas", fields: req.body })  
+                    })
+                    .catch(error => { console.log(error); return res.sendStatus(500) })
+    }
 });
 
 router.get('/emailForm', function (req, res, next) {
@@ -151,6 +171,7 @@ router.post('/sendNewPassword', [
                         emailer.sendPassword(req.body.email, randomPassword);
                         return res.render('account/login', { fields: {}, successMessage: "Naujas slaptažodis išsiųstas į jūsų el. paštą." });
                     })
+                    .catch(error => { console.log(error); return res.sendStatus(500) })
             } 
             else // user dont exist
             {

@@ -32,3 +32,9 @@ exports.updatePassword = function(userId, hash){
     sql = format(sql, [hash, userId]);
     return mysql.query(sql);
 }
+
+exports.updateEmail = function(userId, email){
+    var sql = "UPDATE `user` SET email = ? WHERE id = ?";
+    sql = format(sql, [email, userId]);
+    return mysql.query(sql);
+}

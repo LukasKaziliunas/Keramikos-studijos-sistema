@@ -13,7 +13,7 @@
             <div class="mb-3 row">
                 <label for="amount" class="col-sm-1 col-form-label">Kiekis</label>
                 <div class="col-sm-1">
-                    <input type="number" name="amount" id="amount" step="0.01" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>" class="form-control">
+                    <input type="number" name="amount" id="amount" step="0.001" value="<% if(typeof fields.amount != 'undefined') { %><%=fields.amount%><% } %>" class="form-control">
                 </div>
                 <div class="col-sm-1">
                     <select name="unit" class="form-select">
@@ -29,14 +29,14 @@
             <div class="mb-3 row">
                 <label for="price" class="col-sm-1 col-form-label">kaina</label>
                 <div class="col-sm-2">
-                  <input type="number" name="price" id="price" step="0.01" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>" class="form-control">
+                  <input type="number" name="price" id="price" step="0.001" value="<% if(typeof fields.price != 'undefined') { %><%=fields.price%><% } %>" class="form-control">
                 </div>
             </div>
 
             <div class="mb-3 row">
                 <label for="limit" class="col-sm-1 col-form-label">Limitas</label>
                 <div class="col-sm-2">
-                  <input type="number" name="limit" id="limit" step="0.01" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>" class="form-control">
+                  <input type="number" name="limit" id="limit" step="0.001" value="<% if(typeof fields.limit != 'undefined') { %><%=fields.limit%><% } %>" class="form-control">
                 </div>
             </div>
 

@@ -75,16 +75,15 @@
               <h4 class="mb-3">Mokėjimo būdas</h4>
 
               <div class="my-3">
-                <% if(typeof payments != 'undefined') { %>
-                    <% payments.forEach(function(payment) {  %> 
-                        
-                            <div class="form-check">
-                              <input id="<%=payment.id%>" name="paymentType" type="radio" value="<%=payment.id%>" class="form-check-input" required <% if(payment.id == 1){ %> checked <% } %>>
-                              <label class="form-check-label" for="<%=payment.id%>"><%=payment.name%></label>
-                            </div>
-    
-                    <% }) %>
-                <% } %> 
+                    <div class="form-check">
+                      <input id="1" name="paymentType" type="radio" value="1" class="form-check-input" required >
+                      <label class="form-check-label" for="1">kortele</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input id="2" name="paymentType" type="radio" value="2" class="form-check-input" required >
+                      <label class="form-check-label" for="2">grynaisiais</label>
+                    </div>
                 </div>
     
               <hr class="my-4">

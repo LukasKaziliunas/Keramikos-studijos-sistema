@@ -1,3 +1,5 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">Namai</a></li>
@@ -5,41 +7,78 @@
     </ol>
   </nav>
 
-<div class="container">
-        <form method="GET" action="/orders/orderConfirmForm">
-        <h4 class="mb-3">Pasirinkite nuotrauką pavyzdžiui</h4>
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="my-img-container" style="width: 320px; height: 240px">
-                    <label for="null"><img src="/static/images/noPhoto.jpg" class="img-responsive" width="320px" height="240px"></label>
-                </div>
-                <input type="radio" name="photo" value="" id="null" required>
-            </div>
-        <% if(typeof photos != 'undefined') { %>
-            <% photos.forEach(function(photo) {  %>
-                <% if(photo.path != "/static/images/default.jpg") { %> 
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <div class="my-img-container" style="width: 320px; height: 240px">
-                            <label for="<%=photo.id%>"><img src="<%=photo.path%>" class="img-responsive" width="320px" height="240px"></label>
-                        </div>
-                        <input type="radio" name="photo" value="<%=photo.id%>" id="<%=photo.id%>" required>
-                    </div>
-                <% } %> 
-            <% }) %>
-        <% } %>  
+  <style>
+       .scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 350px;
+  max-height: 500px;
+  height: auto;
+}
+  </style>
 
-      </div>
-      <hr class="my-4">
+<div class="container">
+        <form method="POST" action="/orders/individualOrderConfirmForm" encType="multipart/form-data">
 
         <h4 class="mb-3">Pasirinkite keramikos dirbinio tipą</h4>
-        <select name="potteryType" id="potteryType" required>
-        <% if(typeof potteryTypes != 'undefined') { %>
-            <% potteryTypes.forEach(function(potteryType) {  %> 
-                <option value="<%=potteryType.id%>"><%=potteryType.name%></option>
-            <% }) %>
-        <% } %>  
-        </select>
+        <div class="row mb-3">
+            <div class="col-sm-2">
+                <select name="potteryType" class="form-select" id="potteryType" required>
+                    <% if(typeof potteryTypes != 'undefined') { %>
+                        <% potteryTypes.forEach(function(potteryType) {  %> 
+                            <option value="<%=potteryType.id%>"><%=potteryType.name%> | <%=potteryType.price%> &euro;</option>
+                        <% }) %>
+                    <% } %>  
+                    </select>
+            </div>
+          </div>
+        
         <hr class="my-4">
+
+        <h4 class="mb-3">Pasirinkite nuotrauką pavyzdžiui</h4>
+
+        <div class="row mb-3">
+            <label for="photosFilter" class="col-sm-2 col-form-label">Filtruoti nuotraukas</label>
+            <div class="col-sm-3">
+                <select id="photosFilter" class="form-select" onchange="updatePhotos()">
+                    <option value="0">visos</option>
+                    <% if(typeof potteryTypes != 'undefined') { %>
+                        <% potteryTypes.forEach(function(potteryType) {  %> 
+                            <option value="<%=potteryType.id%>"><%=potteryType.name%></option>
+                        <% }) %>
+                    <% } %>  
+                    </select>
+            </div>
+            <div class="col-sm-3" id="photosInputTogle">
+              <button class="btn btn-secondary" type="button" onclick="addPhoto()">Pridėti savo nuotrauką</button>
+          </div>
+        </div>
+          
+          
+        
+        <div class="row scroll" id="photos">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="my-img-container" style="width: 320px; height: 240px">
+                    <label for="null"><img src="/static/images/defaults/default.jpg" class="img-responsive" width="320px" height="240px"></label>
+                </div>
+                <input type="radio" name="photo" value="1" id="null" required>
+            </div>
+            <% if(typeof photos != 'undefined') { %>
+                <% photos.forEach(function(photo) {  %>
+                    <% if(photo.path != "/static/images/defaults/default.jpg") { %> 
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <div class="my-img-container" style="width: 320px; height: 240px">
+                                <label for="<%=photo.id%>"><img src="<%=photo.path%>" class="img-responsive" width="320px" height="240px"></label>
+                            </div>
+                            <input type="radio" name="photo" value="<%=photo.id%>" id="<%=photo.id%>" required>
+                        </div>
+                    <% } %> 
+                <% }) %>
+            <% } %>  
+
+      </div>
+
+      <hr class="my-4">
 
         <h4 class="mb-3">Pasirinkite dirbinių kiekį</h4>
         <input type="number" value="1" name="amount" min="1" required>
@@ -51,3 +90,52 @@
         <button class="w-30 btn btn-primary btn-lg" type="submit" style="float: right;">Toliau</button>
         </form><br><br><br><br>
   </div>
+
+  <script>
+
+    function updatePhotos(){
+        var potteryTypeSelector = document.getElementById("photosFilter");
+        var photosList = document.getElementById("photos");
+        var potteryType = potteryTypeSelector.value;
+        photosList.innerHTML = "";
+        $.get(`/clients/getPotteryTypePhotos?potteryType=${potteryType}`).always(function(data){
+                console.log(data);
+                $("#photoTemplate").tmpl(data).appendTo("#photos");
+              });
+    }
+
+    function addPhoto(){
+        var photosList = document.getElementById("photos");
+        photosList.innerHTML = `
+        <div class="mb-3">
+            <label for="userPhoto" class="form-label">Įkelkite savo nuotrauką (priimami formatai: JPEG, PNG)</label>
+            <input class="form-control" name="userPhoto" type="file" id="userPhoto" required>
+        </div>
+                            `;
+        var photosInputTogle = document.getElementById("photosInputTogle");
+        photosInputTogle.innerHTML = `
+        <button class="btn btn-secondary" type="button" onclick="selectPhoto()">Pasirinkti nuotrauką iš galerijos</button>
+        `;
+    }
+
+    function selectPhoto(){
+        var photosInputTogle = document.getElementById("photosInputTogle");
+        photosInputTogle.innerHTML = `
+        <button class="btn btn-secondary" type="button" onclick="addPhoto()">Pridėti savo nuotrauką</button>
+        `;
+        updatePhotos();
+    }
+
+  </script>
+
+
+<script id="photoTemplate" type="text/x-jquery-tmpl">
+    
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="my-img-container" style="width: 320px; height: 240px">
+            <label for="${id}"><img src="${path}" class="img-responsive" width="320px" height="240px"></label>
+        </div>
+        <input type="radio" name="photo" value="${id}" id="${id}" required>
+    </div>
+  
+  </script>

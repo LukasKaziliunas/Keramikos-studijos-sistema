@@ -44,9 +44,11 @@ exports.getLackingMaterials = function(){
 
 exports.subtractAmount = function(materialId, amount)
 {
-   let sql = "UPDATE `material` SET `amount` = amount - ? WHERE `id` = ?;"
-   var inserts = [amount, materialId];
+   console.log(materialId, amount)  
+   let sql = "UPDATE `material` SET ROUND(`amount` - ? , 2) WHERE `id` = ?;"
+   var inserts = [(amount * 1).toFixed(2), materialId];
    sql = format(sql, inserts);
+   console.log(sql);
    return mysql.query(sql);
 }
 
@@ -61,4 +63,9 @@ exports.update = function(name, amount, price, limit, checkLimit, units, materia
     sql = format(sql, [name, amount, price, limit, checkLimit, units, materialType, supplier, materialId]);
     console.log(sql);
     return mysql.query(sql);
+}
+
+exports.getLackingMaterialsCount = function(){
+    let sql = "SELECT COUNT(*) as count FROM `material` WHERE `amount` < `limit` AND `checkLimit` = 1";
+    return mysql.getOne(sql);
 }

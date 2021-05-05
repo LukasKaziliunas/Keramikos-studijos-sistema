@@ -14,8 +14,21 @@ exports.getAll = function(){
 
 exports.save = function(name, email, phone){
 
-    let sql = "INSERT INTO `supplier` (`name`, `email`, `phone`) VALUES ( ? , ? , ? )";
+    var sql = "INSERT INTO `supplier` (`name`, `email`, `phone`) VALUES ( ? , ? , ? )";
     var inserts = [name, email, phone];
     sql = format(sql, inserts);
     return mysql.insert(sql);
+}
+
+exports.update = function(name, email, phone, supplierId){
+    var sql = "UPDATE `supplier` SET name = ?, email = ?, phone = ? WHERE `id` = ?";
+    var inserts = [name, email, phone, supplierId];
+    sql = format(sql, inserts);
+    return mysql.query(sql);
+}
+
+exports.delete = function(userId){
+    var sql = "DELETE FROM `supplier` WHERE id = ?";
+    sql = format(sql, userId);
+    return mysql.query(sql);
 }

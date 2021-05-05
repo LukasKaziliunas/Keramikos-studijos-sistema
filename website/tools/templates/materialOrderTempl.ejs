@@ -21,11 +21,11 @@
                 <th style="border: 1px solid black;text-align: left;padding: 8px;">kaina</th>
               </tr>
     
-                  <% for (var i =0; i < names.length;  i++ ) { %>
+                  <% for (var i =0; i < orders.length;  i++ ) { %>
                     <tr>
-                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= names[i] %></td>
-                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= amounts[i] %> <%= units[i] %></td>
-                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= prices[i] %> &euro;</td>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= orders[i].name %></td>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= orders[i].amount %> <%= orders[i].units %></td>
+                      <td style="border: 1px solid black;text-align: left;padding: 8px;"><%= orders[i].price %> &euro;</td>
                     </tr>
                   <% } %>                  
                

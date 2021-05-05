@@ -2,9 +2,15 @@ const mysql = require("../tools/mysql_");
 const { format } = require('mysql');
 
 exports.save = function(url, potteryId){
-    let sql = "INSERT INTO `photo` (`path`, `fk_Pottery`) VALUES ( ?, ? );";
-    var inserts = [url, potteryId];
-    sql = format(sql, inserts);
+    var sql = "";
+    if(potteryId == -1){
+        sql = "INSERT INTO `photo` (`path`, `fk_Pottery`) VALUES ( ?, NULL );";
+        sql = format(sql, url);
+    }else{
+        sql = "INSERT INTO `photo` (`path`, `fk_Pottery`) VALUES ( ?, ? );";
+        var inserts = [url, potteryId];
+        sql = format(sql, inserts);
+    }
     return mysql.insert(sql);
 }
 
@@ -20,8 +26,13 @@ exports.getOnePhoto = function(potteryId){
     return mysql.getOne(sql);
 }
 
-exports.getDistinctPhotos = function(){
-    let sql = "SELECT photo.id, photo.path, photo.fk_Pottery as potteryId FROM photo GROUP BY photo.fk_Pottery";
+exports.getDistinctPhotos = function(potteryType){
+    var filter = "";
+    if(potteryType != 0){
+        filter = " WHERE pottery.potteryType = ? ";
+        filter = format(filter, potteryType);
+    }
+    let sql = `SELECT photo.id, photo.path, photo.fk_Pottery as potteryId FROM photo INNER JOIN pottery ON photo.fk_Pottery = pottery.id ${filter} GROUP BY photo.fk_Pottery`;
     return mysql.query(sql);
 }
 

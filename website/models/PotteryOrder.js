@@ -17,7 +17,7 @@ exports.save = function(comment, potteryType, amount, orderId, photoId){
 }
 
 exports.get = function(orderId){
-    var sql = "SELECT `comment`, `amount`, potteryorder.id as id, potterytype.name as potteryType, photo.path as photo, potteryType.price as price FROM `potteryorder`\
+    var sql = "SELECT `comment`, `amount`, potteryorder.id as id, potterytype.name as potteryType, photo.path as photo, potterytype.price as price FROM `potteryorder`\
     INNER JOIN potterytype ON potteryType = potterytype.id INNER JOIN photo ON potteryorder.fk_Photo = photo.id WHERE potteryorder.fk_Order = ?";
     sql = format(sql, orderId);
     return mysql.getOne(sql);

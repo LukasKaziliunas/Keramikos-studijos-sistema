@@ -25,7 +25,12 @@ const myValidationResult = validationResult.withDefaults({
 });
 
 router.get('/', authenticateWorker, function (req, res, next) {
-  res.render('inventory/workerHomeView', { layout: './layouts/workerLayout', active: 1 });
+  let newOrdersCountP = Order.getNewOrdersCount();
+  let lackingMaterialsCountP = Material.getLackingMaterialsCount();
+  Promise.all([newOrdersCountP, lackingMaterialsCountP]).then(values => {
+    res.render('inventory/workerHomeView', { layout: './layouts/workerLayout', active: 1, newOrdersCount: values[0].count, lackingMaterialsCount: values[1].count });
+  })
+  .catch(err => { console.log(err); return res.sendStatus(500) })
 });
 
 router.get('/potteryList', authenticateWorker, function (req, res, next) {
@@ -96,6 +101,7 @@ router.get('/potteryUpdateForm/:id', authenticateWorker, function (req, res, nex
   Promise.all([potteryTypesP, potteryP, photosP, potteryMaterialsP, allMatterialsP]).then(values => {
      return res.render('inventory/potteryEditForm', { layout: './layouts/workerLayout', types: values[0], fields: values[1], photos: values[2], potteryMateials: values[3], allMaterials: values[4], active: 4 }) 
   })
+  .catch(error => { console.log(error); return res.sendStatus(500) })
 });
 
 router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
@@ -127,6 +133,7 @@ router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
         Promise.all([promises]).then(values => {
         return res.redirect("/inventory/potteryList");
         })
+        .catch(error => { console.log(error); return res.sendStatus(500) })
       }else{
         return res.redirect("/inventory/potteryList");
       }
@@ -157,6 +164,7 @@ router.get('/materialsOrder', authenticateWorker, function (req, res, next) {
   Promise.all([MaterialsP, lackingMaterials]).then(values => {
     return res.render('inventory/materialsOrder', { layout: './layouts/workerLayout', allMaterials: values[0] , materials: values[1], active: 5 })
   })
+  .catch(error => { console.log(error); return res.sendStatus(500) })
 });
 
 router.post('/submitMaterialsOrder', authenticateWorker, function (req, res, next) {
@@ -172,10 +180,26 @@ router.post('/submitMaterialsOrder', authenticateWorker, function (req, res, nex
   }
   total = total.toFixed(2);
 
-    MaterialOrder.saveMultiple(orderAmounts, prices, materialsIds)
+  let orderId = uuidv4();
+
+    MaterialOrder.saveMultiple(orderAmounts, prices, materialsIds, orderId)
     .then(() => {
-      emailer.sendMaterialOrder(names, orderAmounts, prices, units, total);
-      res.redirect('/inventory/manageMaterials');
+      Supplier.getAll().then(async function(suppliers) {
+
+        for(let i = 0; i < suppliers.length ; i++){
+           await MaterialOrder.getMaterialOrdersBySupplier(orderId, suppliers[i].id).then(orders => {
+              if(orders.length > 0){
+                let total = 0;
+                for(let i = 0; i < orders.length ; i++){
+                  total += orders[i].price * 1;
+                }
+                total = total.toFixed(2);
+                emailer.sendMaterialOrder(orders, total, suppliers[i].email);
+              }
+            })
+        };
+        return res.redirect('/inventory/manageMaterials');
+      })
     })
     .catch(error => { console.log(error); return res.sendStatus(500) })
 });
@@ -284,6 +308,7 @@ router.get('/getMaterial/:id', authenticateWorker, function (req, res, next) {
   .then(material => {
     res.json(material);
   })
+  .catch(error => { console.log(error); return res.sendStatus(500) })
 });
 
 router.get('/deletePotteryMaterial', function (req, res, next) {
@@ -319,7 +344,7 @@ function savePhotos(files, potteryId) {
 
       photosList.forEach(photo => {
         //console.log(photo);
-        if(photo.mimetype == 'image/jpeg' || photo.mimetype == 'image.png'){
+        if(photo.mimetype == 'image/jpeg' || photo.mimetype == 'image/png'){
           let photoName = uuidv4();
           uploadPath = __dirname + '/../public/images/' + photoName + ".jpg";
           photo.mv(uploadPath, function (err) {    //save photo to a folder
@@ -332,7 +357,7 @@ function savePhotos(files, potteryId) {
       })
       resolve("photos saves")
     } else {
-      Photo.save("/static/images/default.jpg", potteryId).catch(err => { reject(err) })
+      Photo.save("/static/images/defaults/default.jpg", potteryId).catch(err => { reject(err) })
       .then(() => { resolve("no photos") });
     }
   });

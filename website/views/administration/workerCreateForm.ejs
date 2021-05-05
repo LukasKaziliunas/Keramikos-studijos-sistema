@@ -1,7 +1,7 @@
 <div class="container" style="padding: 0 0 20px 0; margin-left: 10px; margin-right: 10px;" >
 
     <div class="shadow p-3 mb-5 rounded" style="width: 500px; min-height: 500px;">
-        <form method="POST" action="/administration/supplierCreate" encType="multipart/form-data">
+        <form method="POST" action="/administration/workerCreate" encType="multipart/form-data">
 
             <div class="mb-3 row">
                 <label for="name" class="col-sm-2 col-form-label">Vardas</label>
@@ -18,9 +18,9 @@
             </div>
 
             <div class="mb-3 row">
-                <label for="phone" class="col-sm-2 col-form-label">Telefonas</label>
+                <label for="password" class="col-sm-2 col-form-label">Slaptažodis</label>
                 <div class="col-sm-5">
-                  <input type="text" name="phone" class="form-control" id="phone" value="<% if(typeof fields.phone != 'undefined') { %><%=fields.phone%><% } %>">
+                  <input type="text" name="password" class="form-control" id="password" value="<% if(typeof fields.password != 'undefined') { %><%=fields.password%><% } %>">
                 </div>
             </div>
 
@@ -29,12 +29,12 @@
         </form><br> 
 
         <% if(typeof errorsList != 'undefined') { %>
-            <% errorsList.forEach(function(error) {  %> 
-                <div class="alert alert-danger" role="alert">
-                    <%= error.message %>  
-                  </div>
-            <% }) %>
-        <% } %>  
+          <% errorsList.forEach(function(error) {  %> 
+              <div class="alert alert-danger" role="alert">
+                  <%= error.message %>
+                </div><br>
+          <% }) %>
+      <% } %> 
     </div>
 
 </div>

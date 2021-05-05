@@ -1,0 +1,48 @@
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded" style="width: 600px;">
+        <form method="POST" action="/administration/userEdit" encType="multipart/form-data">
+
+            <div class="mb-3 row">
+                <label for="name" class="col-sm-2 col-form-label">Vardas</label>
+                <div class="col-sm-5">
+                  <input type="text" name="name" class="form-control" id="name" value="<% if(typeof fields.name != 'undefined') { %><%=fields.name%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="lname" class="col-sm-2 col-form-label">Pavardė</label>
+                <div class="col-sm-5">
+                  <input type="text" name="lname" class="form-control" id="lname" value="<% if(typeof fields.lname != 'undefined') { %><%=fields.lname%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="phone" class="col-sm-2 col-form-label">Telefonas</label>
+                <div class="col-sm-5">
+                  <input type="text" name="phone" class="form-control" id="phone" value="<% if(typeof fields.phone != 'undefined') { %><%=fields.phone%><% } %>">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">el. paštas</label>
+                <div class="col-sm-5">
+                  <input type="email" name="email" class="form-control" id="email" value="<% if(typeof fields.email != 'undefined') { %><%=fields.email%><% } %>">
+                </div>
+            </div>
+
+            <input type="number" name="userId" value="<%=fields.userId%>" hidden>
+
+            <button type="submit" class="btn btn-primary">Išsaugoti</button>
+
+        </form><br> 
+
+        <% if(typeof errorsList != 'undefined') { %>
+          <% errorsList.forEach(function(error) {  %> 
+              <div class="alert alert-danger" role="alert">
+                  <%= error.message %>
+                </div><br>
+          <% }) %>
+      <% } %> 
+    </div>
+</div>
