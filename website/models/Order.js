@@ -6,9 +6,9 @@ exports.getDeliveryTypes = function(){
     return mysql.query(sql);
 }
 
-exports.save = function(sum, city, address, postalCode, state, orderType, deliverytype, clientId){
-    let sql = "INSERT INTO `order` (`date`, `sum`, `city`, `address`, `postalCode`, `state`, `orderType`, `deliverytype`, `fk_Client`) VALUES (DATE(NOW()), ?, ?, ?, ?, ?, ?, ?, ? )";
-    var inserts = [sum, city, address, postalCode, state, orderType, deliverytype, clientId];
+exports.save = function(sum, city, address, postalCode, state, orderType, deliverytype, clientId, phone){
+    let sql = "INSERT INTO `order` (`date`, `sum`, `city`, `address`, `postalCode`, `state`, `orderType`, `deliverytype`, `fk_Client`, `phone`) VALUES (DATE(NOW()), ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+    var inserts = [sum, city, address, postalCode, state, orderType, deliverytype, clientId, phone];
     sql = format(sql, inserts);
     return mysql.insert(sql);
 }
@@ -58,19 +58,20 @@ exports.getFullOrderDetails = function(filter, page){
     }
     where = format(where, offset);
     let sql = "SELECT	`order`.`id` , DATE_FORMAT(date, '%Y-%m-%d') as date, `sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
-    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, client.name as clientName,\
-    client.lastname as clientLName, client.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
+    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, IFNULL(client.name, 'kliento paskyra uždaryta') as clientName,\
+    client.lastname as clientLName, `order`.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
     INNER JOIN deliverytype ON deliveryType = deliverytype.id INNER JOIN ordertype ON orderType = ordertype.id\
-    INNER JOIN client ON fk_Client = client.id " + where;
+    LEFT JOIN client ON fk_Client = client.id " + where;
+    console.log(sql);
     return mysql.query(sql);
 }
 
 exports.getFullOrderDetailsById = function(id){
     var sql = "SELECT	`order`.`id` , DATE_FORMAT(date, '%Y-%m-%d') as date, `sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
-    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, client.name as clientName,\
-    client.lastname as clientLName, client.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
+    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, IFNULL(client.name, 'kliento paskyra uždaryta') as clientName,\
+    client.lastname as clientLName, `order`.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
     INNER JOIN deliverytype ON deliveryType = deliverytype.id INNER JOIN ordertype ON orderType = ordertype.id\
-    INNER JOIN client ON fk_Client = client.id WHERE `order`.`id` = ?";
+    LEFT JOIN client ON fk_Client = client.id WHERE `order`.`id` = ?";
     sql = format(sql, id);
     return mysql.query(sql);
 }

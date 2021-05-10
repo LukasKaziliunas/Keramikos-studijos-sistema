@@ -35,8 +35,22 @@ exports.getGalleryItems = function(){
     return mysql.query(sql);
 }
 
-exports.getListItems = function(){
-    let sql = "SELECT DISTINCT pottery.name as name, pottery.price as price, pottery.amount as amount, pottery.description as description, pottery.showInGalery as showInGallery, pottery.id as id, potterytype.name as type, photo.path FROM pottery LEFT JOIN photo ON pottery.id = photo.fk_Pottery INNER JOIN potterytype ON potterytype.id = pottery.potteryType GROUP by id";
+exports.getListItems = function(filter, page){
+    var where = "";
+    var offsetString = "LIMIT 3 OFFSET ?";
+    var offset = 0;
+    if(page > 0){
+        offset  = page * 4;   
+    }
+
+    if(filter != "" && filter != 0){
+        where = "WHERE potteryType = ?";
+        where = format(where, filter);
+    }
+
+    offsetString = format(offsetString, offset);
+
+    let sql = `SELECT DISTINCT pottery.name as name, pottery.price as price, pottery.amount as amount, pottery.description as description, pottery.showInGalery as showInGallery, pottery.id as id, potterytype.name as type, photo.path FROM pottery LEFT JOIN photo ON pottery.id = photo.fk_Pottery INNER JOIN potterytype ON potterytype.id = pottery.potteryType ${where} GROUP by id ${offsetString}`;
     return mysql.query(sql);
 }
 
@@ -63,6 +77,11 @@ exports.subtractAmount = function(potteryId, quantity){
 exports.update = function(name, price, amount, description, type, showInGallery, potteryId){
     let sql = "UPDATE `pottery` SET `name` = ?, `price` = ?, `description` = ?, `amount` = ?, `showInGalery` = ?, `potteryType` = ? WHERE `id` = ?"
     sql = format(sql, [name, price, description, amount, showInGallery, type, potteryId])
-    console.log(sql);
+    return mysql.query(sql);
+}
+
+exports.increaseAmount = function(id, amount){
+    var sql = "UPDATE `pottery` SET `amount` = `amount` + ? WHERE id = ?";
+    sql = format(sql, [amount, id]);
     return mysql.query(sql);
 }

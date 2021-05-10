@@ -43,12 +43,10 @@ exports.getLackingMaterials = function(){
 }
 
 exports.subtractAmount = function(materialId, amount)
-{
-   console.log(materialId, amount)  
-   let sql = "UPDATE `material` SET ROUND(`amount` - ? , 2) WHERE `id` = ?;"
+{ 
+   let sql = "UPDATE `material` SET amount = ROUND(`amount` - ? , 2) WHERE `id` = ?;"
    var inserts = [(amount * 1).toFixed(2), materialId];
    sql = format(sql, inserts);
-   console.log(sql);
    return mysql.query(sql);
 }
 

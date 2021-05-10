@@ -4,6 +4,7 @@
     <div class="shadow p-3 mb-5 bg-body rounded" style="width: 90%;">
 
         <p>
+            
             <strong>užsakymo id: </strong> <%=orderId%> | <strong>Būsena: </strong> <span <% if (state == 'naujas') { %> style="color: green;" <%} else if (state == 'įvykdytas') { %>style="color: orange;"<% } else if(state == 'atšauktas') { %>style="color: red;"<% } %>><b><%=state%></b></span>
         </p>
 

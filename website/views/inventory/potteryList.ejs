@@ -1,5 +1,5 @@
 <script src="https://kit.fontawesome.com/676036ed41.js" crossorigin="anonymous"></script>
-
+<script src="/static/javascripts/jquery.min.js"></script>
 <style>
   .scroll {
   overflow-x: hidden;
@@ -19,8 +19,14 @@
 
     <div class="shadow p-3 mb-5 bg-body rounded scroll">
 
-        <a href="/inventory/potteryCreateForm" ><button type="button" class="btn btn-primary">Pridėti naują keramikos dirbinį</button></a>
-
+        <a href="/inventory/potteryCreateForm" style="margin-right: 20px;"><button type="button" class="btn btn-primary">Pridėti naują keramikos dirbinį</button></a>
+        <select id="typeSelect">
+            <option value="0" selected>visi</option> 
+            <% potteryTypes.forEach(function(type) {  %> 
+                <option value="<%=type.id%>"><%=type.name%></option> 
+            <% }) %>
+        </select>
+        <button type="button" onclick="filter()" class="btn btn-primary">Filtruoti</button>
         <div id="potteryList" style="padding: 10px;">
 
             <% if(typeof items != 'undefined') { %>
@@ -43,6 +49,7 @@
                         </div>
                         <div class="col-md-2">
                             <div class="buttons-container" style="text-align: center;">
+                                    <div><input type="number" min="0" value="0" id="addAmount-<%=item.id%>" step="1" style="width: 7ch; margin-right: 5px;"><button type="button" onclick="addPottery('<%=item.id%>')" class="btn btn-success" style="margin-bottom: 5px; margin-right: 5px;">Pridėti</button></div>
                                     <a href="/inventory/potteryUpdateForm/<%=item.id%>" ><button type="button" class="btn btn-secondary" style="margin-bottom: 5px; margin-right: 5px;"><i class="fas fa-edit"></i> Redaguoti</button></a>
                                     <a href="/inventory/potteryDelete/<%=item.id%>" onclick="return confirm('Ar tikrai trinti šį gaminį ?')" ><button type="button" class="btn btn-danger"><i class="fas fa-window-close"></i> Trinti</button></a>
                             </div>
@@ -54,6 +61,51 @@
 
         </div>
 
+        <nav aria-label="Page navigation example">
+            <ul class="pagination  justify-content-center">
+            <li class="page-item">
+                <% if(page > 1) { %>
+                    <a class="page-link" href="/inventory/potteryList?filter=<%=filter%>&page=<%=page*1 - 1%>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                <% } %>
+                
+            </li>
+            <% if(page > 1) { %>
+            <li class="page-item"><a class="page-link" href="/inventory/potteryList?filter=<%=filter%>&page=<%=page*1 - 1%>"><%=page*1 - 1%></a></li>
+            <% } %>
+            <li class="page-item active"><a class="page-link" href="#"><%=page%></a></li>
+            <li class="page-item"><a class="page-link" href="/inventory/potteryList?filter=<%=filter%>&page=<%=page*1 + 1%>"><%=page*1 + 1%></a></li>
+            <li class="page-item">
+                <a class="page-link" href="/inventory/potteryList?filter=<%=filter%>&page=<%=page*1 + 1%>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            </ul>
+        </nav>
+
     </div>
 
 </div>
+<script>
+    function addPottery(id){
+        var amount = document.getElementById(`addAmount-${id}`).value;
+        if(amount != "" && amount != 0){
+            if(confirm(`ar tikrai pridėti ${amount} keramikos dirbinius ?`)){
+               $.get(`/inventory/addPottery?id=${id}&amount=${amount}`).done(function(){
+                    alert("kiekis atnaujintas");
+                }).fail(function() {
+                    alert("serverio klaida");
+                });  
+            }
+        }else{
+            alert("klaidinga kiekio reikšmė")
+        }
+        
+    }
+
+    function filter(){
+        var potteyType = document.getElementById("typeSelect").value;
+        location.replace(`/inventory/potteryList?filter=${potteyType}`);
+    }
+</script>

@@ -8,6 +8,7 @@ const Payment = require("../models/Payment");
 const Pottery = require("../models/Pottery");
 const PotteryOrder = require("../models/PotteryOrder");
 const PurchasedPottery = require("../models/PurchasedPottery");
+const Client = require("../models/Client");
 const { authenticateClient, authenticateWorker } = require("../tools/auth");
 const { v4: uuidv4 } = require('uuid');
 
@@ -67,7 +68,7 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
   if(orderType == 2){  //purchase order
     
     let stripePublicKey = process.env.STRIPE_PUBLIC;
-    Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id)
+    Client.getById(req.user.id).then(client => { return Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id, client.phone)})
     .then(gotOrderId => { orderId = gotOrderId; return PurchasedPottery.save(gotOrderId, req.body.basket); })
     .then(() => { 
       if(paymentType == 1){
@@ -83,7 +84,7 @@ router.post('/createOrder', authenticateClient, function(req, res, next) {
   }else if(orderType == 1){ //individual order
     let stripePublicKey = process.env.STRIPE_PUBLIC;
     let orderDetails = JSON.parse(req.body.orderDetails);
-    Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id)
+    Client.getById(req.user.id).then(client => { return Order.save(total, req.body.city, req.body.address, req.body.postalCode, 1, orderType, req.body.deliveryType, req.user.id, client.phone)})
     .then(gotOrderId => { orderId = gotOrderId; return PotteryOrder.save(orderDetails.comment, orderDetails.potteryType, orderDetails.amount, gotOrderId, orderDetails.photo) })
     .then(() => {
       if(paymentType == 1){

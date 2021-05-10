@@ -34,8 +34,18 @@ router.get('/', authenticateWorker, function (req, res, next) {
 });
 
 router.get('/potteryList', authenticateWorker, function (req, res, next) {
-  Pottery.getListItems().then(items => {
-    return res.render('inventory/potteryList', { layout: './layouts/workerLayout', items: items, active: 4 });
+  var filter = 0;
+  var page = 1;
+  if(req.query.filter != undefined){
+    filter = req.query.filter;
+  }
+  if(req.query.page != undefined){
+    page = req.query.page;
+  }
+  let potteryTypesP = Pottery.getTypes();
+  let potteryListP = Pottery.getListItems(filter, page - 1);
+  Promise.all([potteryListP, potteryTypesP]).then(values => {
+    return res.render('inventory/potteryList', { layout: './layouts/workerLayout', items: values[0], potteryTypes: values[1], page: page, filter: filter, active: 4 });
   })
   .catch(err => { console.log(err); return res.sendStatus(500) })
   
@@ -76,11 +86,13 @@ router.post('/potteryCreate', authenticateWorker, [
     let showInGallery = 0;
     if (req.body.showInGalery != undefined)
     showInGallery = 1;
+
+    var potteryAmount = req.body.amount
     
-    Pottery.save(req.body.name, req.body.price, req.body.amount, req.body.description, req.body.type, showInGallery)    //save pottery
+    Pottery.save(req.body.name, req.body.price, potteryAmount, req.body.description, req.body.type, showInGallery)    //save pottery
       .then(gotPotteryId => {
 
-        let promises = [savePotteryMaterials(req.body.materials, req.body.amounts, gotPotteryId), savePhotos(req.files, gotPotteryId)]
+        let promises = [savePotteryMaterials(req.body.materials, req.body.amounts, potteryAmount, gotPotteryId), savePhotos(req.files, gotPotteryId)]
         Promise.all(promises)
           .then(result => { console.log(result); return res.redirect("/inventory/potteryList"); })
           .catch(err => { console.log(err); return res.redirect("/inventory/potteryList"); })
@@ -107,7 +119,7 @@ router.get('/potteryUpdateForm/:id', authenticateWorker, function (req, res, nex
 router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
     var name = req.body.name;
     var price = req.body.price;
-    var amount = req.body.amount;
+    var potteryAmount = req.body.amount;
     var description = req.body.description;
     var potteryType = req.body.type;
     var potteryId = req.body.potteryId;
@@ -116,7 +128,7 @@ router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
     if (req.body.showInGallery != undefined)
     showInGallery = 1;
 
-    Pottery.update(name, price, amount, description, potteryType, showInGallery, potteryId)
+    Pottery.update(name, price, potteryAmount, description, potteryType, showInGallery, potteryId)
     .then(() => {
       let promises = [];
       if(req.files != null){
@@ -125,7 +137,7 @@ router.post('/potteryUpdate', authenticateWorker, function (req, res, next) {
       }
 
       if(req.body.materials != undefined){
-        let savePotteryMaterialsP = savePotteryMaterials(req.body.materials, req.body.amounts, potteryId);
+        let savePotteryMaterialsP = savePotteryMaterials(req.body.materials, req.body.amounts, potteryAmount, potteryId);
         promises.push(savePotteryMaterialsP);
       }
 
@@ -300,7 +312,22 @@ router.get('/getPottery/:id', function (req, res, next) {
   Pottery.getById(req.params.id)
   .then(gotPottery => { pottery = gotPottery; return Photo.getOnePhoto(gotPottery.id); })
   .then(photo => {pottery.photo = photo.path; return res.json(pottery)})
-  .catch( () => { return res.sendStatus(400) } )
+  .catch( err => { console.log(err); return res.sendStatus(400) } )
+});
+
+router.get('/addPottery', function (req, res, next) {
+  var id = req.query.id;
+  var potteryAmount = req.query.amount;
+  Pottery.increaseAmount(id, potteryAmount).then(() => {
+    PotteryMaterial.getByPottery2(id).then(potteryMaterials => {
+      for(let i = 0, length = potteryMaterials.length; i < length; i++){
+        Material.subtractAmount(potteryMaterials[i].fk_Material, potteryMaterials[i].amount * potteryAmount)
+        .catch(err => console.log(err));
+      }
+    })
+    return res.sendStatus(200);
+  })
+  .catch(err => { console.log(err); return res.sendStatus(500) });
 });
 
 router.get('/getMaterial/:id', authenticateWorker, function (req, res, next) {
@@ -363,7 +390,7 @@ function savePhotos(files, potteryId) {
   });
 }
 
-function savePotteryMaterials(materialsIds, amounts, potteryId) {
+function savePotteryMaterials(materialsIds, amounts, potteryAmount, potteryId) {
 
   return new Promise((resolve, reject) => {
 
@@ -378,7 +405,7 @@ function savePotteryMaterials(materialsIds, amounts, potteryId) {
 
       for (let i = 0; i < materialsIds.length; i++) {
         PotteryMaterial.save(materialsIds[i], amounts[i], potteryId)
-        .then(() => Material.subtractAmount(materialsIds[i], amounts[i]))
+        .then(() => Material.subtractAmount(materialsIds[i], (amounts[i] * potteryAmount).toFixed(2)))
         .catch(err => { throw err });
       }
 
