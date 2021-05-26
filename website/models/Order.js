@@ -57,21 +57,23 @@ exports.getFullOrderDetails = function(filter, page){
         where = "ORDER BY orderstate.id, date DESC LIMIT 3 OFFSET ?"
     }
     where = format(where, offset);
-    let sql = "SELECT	`order`.`id` , DATE_FORMAT(date, '%Y-%m-%d') as date, `sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
-    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, IFNULL(client.name, 'kliento paskyra uždaryta') as clientName,\
-    client.lastname as clientLName, `order`.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
-    INNER JOIN deliverytype ON deliveryType = deliverytype.id INNER JOIN ordertype ON orderType = ordertype.id\
-    LEFT JOIN client ON fk_Client = client.id " + where;
-    console.log(sql);
+    let sql = "SELECT  `order`.`id` , DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.`sum` as sum, `city`, `address`,\
+    `postalCode`, orderstate.name as orderState,    deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId,\
+    IFNULL(client.name, 'kliento paskyra uždaryta') as clientName,    client.lastname as clientLName, `order`.phone as phone,\
+    IF(payment.id is null, 'neatlikta', 'atlikta') as paymentMade\
+    FROM `order` INNER JOIN orderstate ON state = orderstate.id INNER JOIN deliverytype ON deliveryType = deliverytype.id\
+    INNER JOIN ordertype ON orderType = ordertype.id    LEFT JOIN client ON fk_Client = client.id\
+    LEFT JOIN payment ON payment.fk_Order = `order`.`id` " + where;
     return mysql.query(sql);
 }
 
 exports.getFullOrderDetailsById = function(id){
-    var sql = "SELECT	`order`.`id` , DATE_FORMAT(date, '%Y-%m-%d') as date, `sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
+    var sql = "SELECT	`order`.`id` ,DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.`sum`, `city`, `address`, `postalCode`, orderstate.name as orderState,\
     deliverytype.name as deliveryType, ordertype.name as orderType, ordertype.id as orderTypeId, IFNULL(client.name, 'kliento paskyra uždaryta') as clientName,\
-    client.lastname as clientLName, `order`.phone as phone FROM `order` INNER JOIN orderstate ON state = orderstate.id\
+    client.lastname as clientLName, `order`.phone as phone, IF(payment.id is null, 'neatlikta', 'atlikta') as paymentMade\
+    FROM `order` INNER JOIN orderstate ON state = orderstate.id\
     INNER JOIN deliverytype ON deliveryType = deliverytype.id INNER JOIN ordertype ON orderType = ordertype.id\
-    LEFT JOIN client ON fk_Client = client.id WHERE `order`.`id` = ?";
+    LEFT JOIN client ON fk_Client = client.id LEFT JOIN payment ON payment.fk_Order = `order`.`id` WHERE `order`.`id` = ?";
     sql = format(sql, id);
     return mysql.query(sql);
 }
@@ -83,10 +85,11 @@ exports.updateState = function(id, state){
 }
 
 exports.getClientOrders = function(clientId){
-    var sql = "SELECT `order`.id as id, DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.sum, paymenttype.name as paymentType,\
-    orderstate.name as orderState, ordertype.name as orderType, orderType as orderTypeId FROM `order` INNER JOIN payment\
-    ON `order`.`id` = payment.fk_Order INNER JOIN paymenttype ON payment.paymentType = paymenttype.id INNER JOIN orderstate\
-    ON `order`.state = orderstate.id INNER JOIN ordertype ON `order`.`orderType` = ordertype.id WHERE `order`.`fk_Client` = ? ORDER BY date DESC ";
+    var sql = "SELECT `order`.id as id, DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.sum, IFNULL(paymenttype.name, \
+        'mokėjimas nepasirinktas arba neatliktas')  as paymentType,    IF(orderstate.name = 'naujas', 'pateiktas', orderstate.name) as orderState, ordertype.name as orderType,\
+        orderType as orderTypeId FROM `order` LEFT JOIN payment    ON `order`.`id` = payment.fk_Order LEFT JOIN paymenttype \
+        ON payment.paymentType = paymenttype.id INNER JOIN orderstate    ON `order`.state = orderstate.id INNER JOIN ordertype ON \
+        `order`.`orderType` = ordertype.id WHERE `order`.`fk_Client` = ? ORDER BY date DESC";
     sql = format(sql, clientId);
     return mysql.query(sql);
 }

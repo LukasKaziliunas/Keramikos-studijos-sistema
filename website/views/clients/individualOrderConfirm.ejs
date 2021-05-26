@@ -72,8 +72,10 @@
                     <hr class="my-4">
                 </div>
     
-              <h4 class="mb-3">Mokėjimo būdas</h4>
+              
+                <!--
 
+                 <h4 class="mb-3">Mokėjimo būdas</h4> 
               <div class="my-3">
                     <div class="form-check">
                       <input id="1" name="paymentType" type="radio" value="1" class="form-check-input" required checked>
@@ -85,8 +87,9 @@
                       <label class="form-check-label" for="2">grynaisiais</label>
                     </div>
                 </div>
-    
-              <hr class="my-4">
+                <hr class="my-4">
+              -->
+              
                <input type="text" id="orderDetails" value='<%=orderDetails%>' hidden>
               <button class="w-100 btn btn-primary btn-lg" onclick="submitForm()" type="button">Pateikti</button><br><br><br>
           </div>
@@ -109,10 +112,10 @@
                 totalDOM.innerHTML = price * 1 + 5;
                 deliveryCostCardDOM.style.visibility = "visible";
                 deliveryAddressDOM.style.display = "block";
-
+/*
                 var PaymentTypeRadios = document.getElementsByName('paymentType');
                 PaymentTypeRadios[0].checked = true;
-                PaymentTypeRadios[1].disabled = true;
+                PaymentTypeRadios[1].disabled = true;*/
 
             }else if(DeliveryTypeRadios[1].checked){
                 totalDOM.innerHTML = price;
@@ -122,8 +125,8 @@
                 document.getElementById("postalCode").value = '';
                 deliveryAddressDOM.style.display = "none";
 
-                var PaymentTypeRadios = document.getElementsByName('paymentType');
-                PaymentTypeRadios[1].disabled = false;
+               /* var PaymentTypeRadios = document.getElementsByName('paymentType');
+                PaymentTypeRadios[1].disabled = false;*/
             }else{0
                 alert(error);
             }
@@ -134,13 +137,14 @@
             if(!confirm("Ar pateikti užsakymą?"))
               return;
 
+            
             const form = document.createElement('form');
             form.method = 'post';
             form.action = '/orders/createOrder';
 
             let total = document.getElementById("totalValue").innerText;
             var DeliveryTypeRadios = document.getElementsByName('deliveryType');
-            var PaymentTypeRadios = document.getElementsByName('paymentType');
+           // var PaymentTypeRadios = document.getElementsByName('paymentType');
             var city = document.getElementById("city").value;
             var address = document.getElementById("address").value;
             var postalCode = document.getElementById("postalCode").value;
@@ -156,12 +160,12 @@
             }
 
               //get payment type from payments radio inputs
-              for (var i = 0, length = PaymentTypeRadios.length; i < length; i++) {
+             /* for (var i = 0, length = PaymentTypeRadios.length; i < length; i++) {
                 if (PaymentTypeRadios[i].checked) {
                     paymentType = PaymentTypeRadios[i].value
                     break;
                 }
-            }
+            }*/
 
             //pristatymas kurjeriu
             if(deliveryType == 1 && ( city == '' || address == '' || postalCode == '' ))
@@ -173,12 +177,12 @@
                 hiddenField1.name = 'deliveryType';
                 hiddenField1.value = deliveryType;
                 form.appendChild(hiddenField1);
-
+                /*
                 const hiddenField2 = document.createElement('input');
                 hiddenField2.type = 'hidden';
                 hiddenField2.name = 'paymentType';
                 hiddenField2.value = paymentType;
-                form.appendChild(hiddenField2);
+                form.appendChild(hiddenField2);*/
 
                 const hiddenField3 = document.createElement('input');
                 hiddenField3.type = 'hidden';

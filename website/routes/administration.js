@@ -7,6 +7,7 @@ const Supplier = require("../models/Supplier");
 const Client = require("../models/Client");
 const Worker = require("../models/Worker");
 const User = require("../models/User");
+const Pottery = require("../models/Pottery");
 const bcrypt = require('bcrypt')
 
 const myValidationResult = validationResult.withDefaults({
@@ -172,7 +173,71 @@ router.post('/workerCreate', authenticateAdmin, [
     }
 });
 
+router.get('/managePotteryTypes', authenticateAdmin, function (req, res, next) {
+  Pottery.getTypes().then(types => {
+    return res.render('administration/managePotteryTypes', { layout: './layouts/adminLayout', types: types, active: 3 });
+  })
+  
+});
 
+router.get('/potteryTypeCreateForm', authenticateAdmin, function (req, res, next) {
+   return res.render('administration/potteryTypeCreateForm', { layout: './layouts/adminLayout', fields: {}, active: 3 });
+});
+
+router.get('/potteryTypeEditForm', authenticateAdmin, function (req, res, next) {
+  let id = req.query.id;
+  Pottery.getTypeById(id).then(potteryType => {
+    return res.render('administration/potteryTypeEditForm', { layout: './layouts/adminLayout', fields: potteryType, typeId: id, active: 3 });
+  })
+  .catch(error => { console.log(error); res.sendStatus(500) })
+});
+
+router.post('/potteryTypeEdit', [
+  check('name', 'neivestas pavadinimas').notEmpty(),
+  check('price', 'neivesta kaina').notEmpty(),
+  check('price', 'kaina negali būti neigiama arba lygi nuliui').isFloat({min: 0.01})
+], authenticateAdmin, function (req, res, next) {
+  const hasErrors = !myValidationResult(req).isEmpty();
+
+    if (hasErrors) {  // form has errors
+      const errorsList = myValidationResult(req).array();
+      return res.render('administration/potteryTypeEditForm', { layout: './layouts/adminLayout', errorsList: errorsList, fields: req.body, active: 3 });
+    }else{
+      let name = req.body.name;
+      let price = req.body.price;
+      let id = req.body.id;
+      Pottery.updatePotteryType(name, price, id).then(() => {
+        return res.redirect('managePotteryTypes');
+      })
+      .catch(error => { console.log(error); res.sendStatus(500) })
+    }
+});
+
+router.post('/potteryTypeCreate', authenticateAdmin, [
+  check('name', 'neivestas pavadinimas').notEmpty(),
+  check('price', 'neivesta kaina').notEmpty(),
+  check('price', 'kaina negali būti neigiama arba lygi nuliui').isFloat({min: 0.01})
+], function (req, res, next) {
+  const hasErrors = !myValidationResult(req).isEmpty();
+
+    if (hasErrors) {  // form has errors
+      const errorsList = myValidationResult(req).array();
+      return res.render('administration/potteryTypeCreateForm', { layout: './layouts/adminLayout', errorsList: errorsList, fields: req.body, active: 3 });
+    }else{
+      let name = req.body.name;
+      let price = req.body.price;
+      Pottery.savePotteryType(name, price).then(() => {
+        return res.redirect('managePotteryTypes');
+      })
+      .catch(error => { console.log(error); return res.sendStatus(500) })
+    }
+});
+
+router.get('/potteryTypeDelete', authenticateAdmin, function (req, res, next) {
+  let id = req.query.id;
+  Pottery.deletePotteryType(id).then(() => { return res.sendStatus(200)})
+  .catch(error => { console.log(error); return res.sendStatus(500) })
+});
 
 router.get('/getUsers', function (req, res, next) {
   var id = req.query.id;

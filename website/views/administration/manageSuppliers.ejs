@@ -46,7 +46,7 @@ $(document).ready(function () {
         if(confirm('Ar tikrai trinti tiekėją ?')){
             var id = $(this).data("id");
             var removeButton = $(this);
-            $.get(`/administration/supplierDelete?id=${id}`).done(function(){
+            $.get(`/administration/potteryTypeDelete?id=${id}`).done(function(){
                 removeButton.closest("tr").remove();
             }).fail(function() {
                 alert("klaida trinant");

@@ -59,11 +59,16 @@ exports.delete = function(materialId){
 exports.update = function(name, amount, price, limit, checkLimit, units, materialType, supplier, materialId){
     var sql = "UPDATE `material` SET `name` = ?, `amount` = ?, `price` = ?, `limit` = ?, `checkLimit` = ?, `units` = ?, `materialType` = ?, `fk_Supplier` = ? WHERE `id` = ?";
     sql = format(sql, [name, amount, price, limit, checkLimit, units, materialType, supplier, materialId]);
-    console.log(sql);
     return mysql.query(sql);
 }
 
 exports.getLackingMaterialsCount = function(){
     let sql = "SELECT COUNT(*) as count FROM `material` WHERE `amount` < `limit` AND `checkLimit` = 1";
+    return mysql.getOne(sql);
+}
+
+exports.getMaterialBalance = function(materialId){
+    var sql = "SELECT amount FROM material WHERE id = ?";
+    sql = format(sql, materialId);
     return mysql.getOne(sql);
 }

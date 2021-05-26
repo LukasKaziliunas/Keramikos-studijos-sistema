@@ -34,6 +34,23 @@
             </div>
         </div>
 
+        <% if(paymentMade == 0 && state == 'patvirtintas') { %>
+            <div class="row">
+                <div class="col-10"></div>
+                <div class="col-2">
+                    <a href="/orders/paymentSelectionForm?orderId=<%=orderId%>&price=<%=potteryOrder.price%>"><button type="button" class="btn btn-success">Atlikti mokėjimą</button></a>
+                </div>
+            </div>
+            
+        <% }else if(paymentMade == 1){ %> 
+            <div class="alert alert-info" role="alert">
+                Mokėjimas yra užregistuotas
+              </div>
+        <% }else{ %>
+            <div class="alert alert-info" role="alert">
+                Laukiama patvirtinimo. Užsakymą patvirtinus galėsite atlikti mokėjimą.
+              </div>    
+        <% } %> 
 
     </div>
 </div>

@@ -10,7 +10,7 @@ exports.getOne = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : get");
+        reject("mysql error : get (" + query + " )");
       } else {
         var resultJson = Object.values(JSON.parse(JSON.stringify(results)))
         resolve(resultJson[0]);
@@ -29,7 +29,7 @@ exports.query = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : query");
+        reject("mysql error : query (" + query + " )");
       } else {
         var resultJson = Object.values(JSON.parse(JSON.stringify(results)))
         resolve(resultJson);
@@ -48,7 +48,7 @@ exports.insert = function (query) {
     connection.query(query, function (error, results, fields) {
       connection.destroy();
       if (error) {
-        reject("mysql error : insert");
+        reject("mysql error : insert (" + query + " )");
       } else {
         resolve(results.insertId);
       }

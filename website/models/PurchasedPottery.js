@@ -30,6 +30,5 @@ exports.get = function(orderId){
     var sql = "SELECT purchasedpottery.amount as amount, `photo`, purchasedpottery.id as purchaseId,\
     `fk_Pottery` as potteryId, pottery.name as name, pottery.price as price FROM `purchasedpottery` LEFT JOIN pottery ON fk_Pottery = pottery.id WHERE fk_Order = ?";
     sql = format(sql, orderId);
-    console.log(sql);
     return mysql.query(sql);
 }

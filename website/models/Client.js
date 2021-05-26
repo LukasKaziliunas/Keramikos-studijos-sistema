@@ -19,7 +19,6 @@ exports.update = function(name, lastname, phone, userId){
     var sql = "UPDATE `client` SET `name` = ?, `lastname` = ?, `phone` = ? WHERE `id` = ?";
     let includes = [name, lastname, phone, userId];
     sql = format(sql, includes);
-    console.log(sql);
     return mysql.query(sql);
 }
 
@@ -30,12 +29,12 @@ exports.getClients = function(id, name, lname, phone, page){
     var finalFilter = "";
     var offset = 0;
     if(page > 0){
-        offset  = page * 2;   
+        offset  = page * 5;   
     }
 
     var filters = [];
 
-    var limit = " LIMIT 2 OFFSET ?";
+    var limit = " LIMIT 5 OFFSET ?";
     limit = format(limit, offset);
 
     if(id != ''){

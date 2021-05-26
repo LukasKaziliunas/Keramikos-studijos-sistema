@@ -20,11 +20,11 @@ var stripeHandler = StripeCheckout.configure({
         }).then(function(data) {
             //alert(data.message)
             console.log("success")
-            alert("Užsakymas pateiktas")
+            alert("Mokėjimas užregistruotas")
             window.location.replace("/clients/gallery"); 
         }).catch(function(error) {
             // mokejimas niekad neivyks nes naudojama legacy stripe versija
-            alert("Užsakymas pateiktas")
+            alert("Mokėjimas užregistruotas")
             window.location.replace("/clients/gallery"); 
         })
     }

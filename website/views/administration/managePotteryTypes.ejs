@@ -1,0 +1,57 @@
+<script src="/static/javascripts/jquery.min.js"></script>
+<div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded scroll">
+        <a href="/administration/potteryTypeCreateForm"><button class="btn btn-primary" >Pridėti dirbinio tipą</button></a>
+        
+        <h2>Keramikos dirbinių tipai</h2>
+        <div id="suppliersList">
+            <table class="table table-hover" style="width: 500px;">
+                <tr>
+                    <th>Pavadinimas</th>
+                    <th>kaina</th>
+                    <th></th>
+                </tr>
+                <% if(typeof types != 'undefined') { %>
+                    <% types.forEach(function(type) {  %> 
+                        <tr>
+                            <td><%= type.name %></td>
+                            <td><%= type.price %> &euro;</td>
+                            <td>
+                                <div style="margin-left: auto; margin-right: auto; width: 80px;">
+                                    <button class="btn btn-secondary btn-sm btnEdit" type="button" data-id="<%=type.id%>"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm btnRemove" type="button" data-id="<%=type.id%>"><i class="fas fa-window-close"></i></button>
+                                </div>
+                            </td>
+                          </tr>
+                    <% }) %>
+                <% } %> 
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+            
+         $("#suppliersList").delegate(".btnEdit", "click", function(){
+            var id = $(this).data("id");
+            window.location.replace(`/administration/potteryTypeEditForm?id=${id}`);
+        })
+    
+         $("#suppliersList").delegate(".btnRemove", "click", function(){
+            if(confirm('Ar tikrai trinti dirbinio tipą ?')){
+                var id = $(this).data("id");
+                var removeButton = $(this);
+                $.get(`/administration/potteryTypeDelete?id=${id}`).done(function(){
+                    removeButton.closest("tr").remove();
+                }).fail(function() {
+                    alert("klaida trinant");
+                }); 
+            }
+        })
+    });
+    
+    </script>

@@ -17,6 +17,30 @@ exports.getTypes = function(){
     return mysql.query(sql);
 }
 
+exports.getTypeById = function(id){
+    var sql = "SELECT * FROM `potterytype` WHERE id = ?";
+    sql = format(sql, id);
+    return mysql.getOne(sql);
+}
+
+exports.updatePotteryType = function(name, price, id){
+    var sql = "UPDATE `potterytype` SET `name` = ?, `price` = ? WHERE id = ?";
+    sql = format(sql, [name, price, id]);
+    return mysql.query(sql);
+}
+
+exports.savePotteryType = function(name, price){
+    var sql = "INSERT INTO `potterytype` (`name`, `price`) VALUES (?, ?)";
+    sql = format(sql, [name, price]);
+    return mysql.query(sql);
+}
+
+exports.deletePotteryType = function(id){
+    var sql = "DELETE FROM `potterytype` WHERE id = ?";
+    sql = format(sql, id);
+    return mysql.query(sql);
+}
+
 exports.getTypePrice = function(typeId){
     var sql = "SELECT price FROM `potterytype` WHERE id = ?";
     sql = format(sql, typeId);
@@ -40,7 +64,7 @@ exports.getListItems = function(filter, page){
     var offsetString = "LIMIT 3 OFFSET ?";
     var offset = 0;
     if(page > 0){
-        offset  = page * 4;   
+        offset  = page * 3;   
     }
 
     if(filter != "" && filter != 0){

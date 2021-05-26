@@ -43,6 +43,7 @@ function to_basket()
     }
 
     localStorage.setItem("basketItems", JSON.stringify(basketItems))
+    setBasketItemsAmount(); //this function is in headerLoggedIn.ejs file
 }
 
 function checkIfInBasket(basket, pottery)
@@ -88,6 +89,7 @@ function updateBasketItemQty(id, qty){
         }
     }
     localStorage.setItem("basketItems", JSON.stringify(basketItems));
+    setBasketItemsAmount(); //this function is in headerLoggedIn.ejs file
     calculateTotal();
 }
 

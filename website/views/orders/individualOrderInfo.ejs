@@ -27,37 +27,109 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-9"></div>
-            <div class="col-2">
-                <select class="form-select" id="stateSelector">
-                    <option value="0">-</option>
-                    <option value="1">Naujas</option>
-                    <option value="2">Įvykdytas</option>
-                    <option value="3">Atšauktas</option>
-                </select>
-            </div>
-            <div class="col-1">
-                <button type="button" class="btn btn-success checkBtn" data-id="<%=orderId%>"><i class="fas fa-check"></i></button>
-            </div>
-        </div>
+        <% if(state == 'patvirtintas') { %>
+            <h5>Medžiagos</h5>
+            <ul>
+                <% orderMaterials.forEach(function(orderMaterial) {  %> 
+                    <li style="margin-bottom: 5px;">
+                    <%=orderMaterial.id%> <%=orderMaterial.name%> | kiekis - <%=orderMaterial.materialAmount%> <%=orderMaterial.units%>
+                    <input type="number" value="<%=orderMaterial.orderMaterialAmount%>" readonly> 
+        
+                    </li>
+                <% }) %>
+            </ul>
+        <% }else{ %>
+            <form action="/orders/approveOrder" method="POST">
+                <h5>medžiagos</h5>
+                <button id="add" type="button" class="btn btn-secondary">Pridėti</button>
+                <ul id="materials_list">
+                    <% if(typeof selectedMaterials != 'undefined') { %>
+                        <% for(let i = 0, length = selectedMaterials.length; i < length; i++) {  %> 
+                            <li style="margin-bottom: 5px;">
+                                <select name="materials[]">
+                                    <% materials.forEach(function(material) {  %> 
+                                        <option value="<%=material.id%>" <% if(material.id == selectedMaterials[i]) { %> selected <% } %> ><%=material.name%> | kiekis - <%=material.amount%> <%=material.units%></option> 
+                                    <% }) %>
+                                </select>
+                                <input type="number" name="amounts[]" step="0.01" value="<%=amounts[i]%>" required> 
+                                <button id="sub" type="button" class="remove btn btn-danger" >Pašalinti</button><br>
+                            </li>
+                        
+                        <% } %> 
+                    <% } %> 
+                    
+                </ul>
+                <input type="number" name="potteryAmount" value="<%=potteryOrder.amount%>" hidden>
+                <input type="number" name="potteryOrderId" value="<%=potteryOrder.id%>" hidden>
+                <input type="number" name="orderId" value="<%=orderId%>" hidden>
+
+                <% if(typeof errorsList != 'undefined') { %>
+                    <% errorsList.forEach(function(error) {  %> 
+                        <div class="alert alert-danger" role="alert">
+                            <%= error.message %>  
+                          </div>
+                    <% }) %>
+                <% } %> 
+
+                <div class="row">
+                    <div class="col-9"></div>
+                    <div class="col-3">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('ar tikrai patvirtinti šį užsakymą ?')">Patvirtinti</button>
+                        <button type="button" class="btn btn-danger denyBtn" data-id="<%=orderId%>">Atmesti</button>
+                    </div>
+                </div>
+               
+            </form>
+        <% } %> 
+
+     
 
     </div>
 </div>
 
+<template id="material_template">
+    <li style="margin-bottom: 5px;">
+    <select name="materials[]">
+        <% materials.forEach(function(material) {  %> 
+            <option value="<%=material.id%>"><%=material.name%> | kiekis - <%=material.amount%> <%=material.units%></option> 
+        <% }) %>
+    </select>
+    <input type="number" name="amounts[]" step="0.01" required> 
+    <button id="sub" type="button" class="remove btn btn-danger" >Pašalinti</button><br>
+    </li>
+</template>
+
 <script>
     $(document).ready(function () {
        
-        $( ".checkBtn" ).click(function() {
-          var id =  $( this ).data("id");
-          var value = document.getElementById("stateSelector").value;
-          var states = ['naujas', 'įvykdytas', 'atšauktas']
-          if(value != 0){
-              $.get(`/orders/updateState?id=${id}&state=${value}`).always(function(){
-                window.location.replace(`/orders/orderInfo?orderId=${id}&orderType=${2}&orderState=${states[value - 1]}`)
-              });
-          }
-        });
-        
+        $( ".denyBtn" ).click(function() {
+            if(confirm('ar tikrai atmesti šį užsakymą ?')){
+                var id =  $( this ).data("id");
+                $.get(`/orders/updateState?id=${id}&state=3`).always(function(){
+                    window.location.replace(`/orders/orderInfo?orderId=${id}&orderType=1&orderState=atšauktas`)
+                    })
+            }
+        });  
+
+            var materials = $('#materials_list');
+
+            var materialTemplate = $('#material_template').html();
+
+            function addEntry()
+            {
+                materials.append(materialTemplate);
+            }
+
+            $('#add').on('click', function(){
+                addEntry();
+            })
+
+            materials.delegate( '.remove' ,'click', function(){
+                    
+                var $li = $(this).closest('li');
+                $li.remove();
+                    
+            });
+
     });
 </script>

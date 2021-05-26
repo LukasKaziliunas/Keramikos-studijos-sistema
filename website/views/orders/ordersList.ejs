@@ -40,8 +40,10 @@ height: 100%;
                             <p><strong>Siuntimo būdas:</strong> <%=order.deliveryType%></p>
                             <p><%=order.city%>, <%=order.address%>, <%=order.postalCode%></p>
                             <p><strong>Užsakymo tipas:</strong> <%=order.orderType%></p>
+                            <p><strong>Mokėjimas:</strong> <%=order.paymentMade%></p>
                         </div>
                         <div class="col-2">
+                            <% if(order.orderType == 'pirkimo') { %> 
                             <div class="row">
                                 <div class="col-9">
                                     <select class="form-select" id="stateSelector-<%=order.id%>">
@@ -55,6 +57,7 @@ height: 100%;
                                     <button type="button" class="btn btn-success checkBtn" data-id="<%=order.id%>"><i class="fas fa-check"></i></button>
                                 </div>
                             </div>
+                            <% } %> 
                             <a href="/orders/orderInfo?orderId=<%=order.id%>&orderType=<%=order.orderTypeId%>&orderState=<%=order.orderState%>"><button type="button" class="btn btn-info" style="margin-top: 20px;">Peržiūrėti</button></a>
                         </div>
                       </div>

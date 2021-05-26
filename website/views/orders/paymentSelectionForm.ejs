@@ -1,0 +1,74 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Namai</a></li>
+      <li class="breadcrumb-item"><a href="/orders/userOrders">Mano užsakymai</a></li>
+      <li class="breadcrumb-item"><a href="#" onclick="window.history.go(-1)">Užsakymo informacija</a></li>
+      <li class="breadcrumb-item"><a href="#">Mokėjimas</a></li>
+    </ol>
+  </nav>
+
+  <div class="container" style="padding: 20px 0 20px 0; margin-left: 10px; margin-right: 10px;" >
+
+    <div class="shadow p-3 mb-5 bg-body rounded" style="width: 50%;">
+        <form action="/orders/makePayment" method="POST">
+
+            <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                  <div>
+                    <h6 class="my-0">Atsiėmimo būdas:</h6>
+                    <small class="text-muted"><% if(order.deliveryType == 1) { %> Kurjeris <%  }else{ %> Atsiėmimas studijoje <% } %></small>
+                  </div>
+                 
+                </li>
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                  <div>
+                    <h6 class="my-0">Dirbinio kaina</h6>
+                    
+                  </div>
+                  <span class="text-muted"><%= price %> &euro;</span>
+                </li>
+
+                <% if(order.deliveryType == 1) { %>
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                          <h6 class="my-0">Pristatymo kaina</h6>
+                        </div>
+                        <span class="text-muted">+ 5 &euro;</span>
+                      </li>
+                <% } %> 
+                
+               
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>Bendra suma</span>
+                  <strong><%= order.sum %> &euro;</strong>
+                </li>
+              </ul>
+
+              <hr class="my-4">
+
+                <h4 class="mb-3">Pasirinkite mokėjimo būdą</h4>
+
+              <div class="my-3">
+                <div class="form-check">
+                    <input id="1" name="paymentType" type="radio" value="1" class="form-check-input" required <% if(order.deliveryType == 1) { %> checked <% } %>  >
+                    <label class="form-check-label" for="1">kortele</label>
+                  </div>
+
+                  <div class="form-check">
+                    <input id="2" name="paymentType" type="radio" value="2" class="form-check-input" required <% if(order.deliveryType == 1) { %> disabled <% } %> >
+                    <label class="form-check-label" for="2">grynaisiais</label>
+                  </div>
+              </div>
+              <input type="number" name="total" value="<%=order.sum%>" hidden>
+              <input type="number" name="orderId" value="<%=order.id%>" hidden>
+            <div class="row">
+                <div class="col-10"></div>
+                <div class="col-2" style="padding-right: 10px;">
+                  <button type="submit" onclick="return confirm('Ar tikrai patvirtinti mokėjimą ?')" class="btn btn-primary" >Patvirtinti</button>  
+                </div>
+            </div>
+            
+        </form>
+    </div>
+
+</div>

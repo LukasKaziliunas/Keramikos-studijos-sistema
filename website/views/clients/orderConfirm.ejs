@@ -16,7 +16,15 @@
     
         <div class="row g-5">
           <div class="col-md-5 col-lg-4 order-md-last">
-            
+
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-primary">Krepšelis</span>
+            </h4>
+            <ul class="list-group mb-3" id="basketList">
+              
+              
+            </ul>
+
             <ul class="list-group mb-3">
               <li class="list-group-item d-flex justify-content-between lh-sm" id="deliveryCostCard">
                 <div>
@@ -28,11 +36,12 @@
               
               <li class="list-group-item d-flex justify-content-between">
                 <span>Bendra suma </span>
-                <strong id="totalValue"><%= (price * 1) + 5 %></strong>
+                <div><strong id="totalValue"><%= (price * 1) + 5 %></strong> &euro;</div>
               </li>
             </ul>
     
           </div>
+
           <div class="col-md-7 col-lg-8">
             <button type="button" class="btn btn-primary" onclick="window.history.go(-1)" >&lt; atgal</button><br><br>
             <h3 class="mb-3">Užsakymo duomenys</h3>
@@ -76,12 +85,12 @@
 
               <div class="my-3">
                     <div class="form-check">
-                      <input id="1" name="paymentType" type="radio" value="1" class="form-check-input" required >
+                      <input id="card" name="paymentType" type="radio" value="1" class="form-check-input" required checked >
                       <label class="form-check-label" for="1">kortele</label>
                     </div>
 
                     <div class="form-check">
-                      <input id="2" name="paymentType" type="radio" value="2" class="form-check-input" required >
+                      <input id="cash" name="paymentType" type="radio" value="2" class="form-check-input" required disabled >
                       <label class="form-check-label" for="2">grynaisiais</label>
                     </div>
                 </div>
@@ -99,16 +108,42 @@
     </html>
 
     <script>
+        window.onload = showBasketItems();
+
+        function showBasketItems(){
+          let basketItems = localStorage.getItem('basketItems');
+          basketItems = JSON.parse(basketItems)
+          let basketList = document.getElementById("basketList");
+
+          var basketListHtml = "";
+          for(let i = 0; i<basketItems.length;i++)
+          {
+            basketListHtml += `
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                  <h6 class="my-0">${basketItems[i].name}</h6>
+                  <small class="text-muted">Kiekis: ${basketItems[i].quantity}</small>
+                </div>
+                <span class="text-muted">${basketItems[i].price} &euro;</span>
+              </li>
+            `;
+          }
+          basketList.innerHTML = basketListHtml;
+        }
 
         function changeTotal(price){
             let totalDOM = document.getElementById("totalValue");
             let deliveryCostCardDOM = document.getElementById("deliveryCostCard");
             var DeliveryTypeRadios = document.getElementsByName('deliveryType');
             var deliveryAddressDOM = document.getElementById("deliveryAddress");
+            var cardRadioDOM = document.getElementById("card");
+            var cashRadioDOM = document.getElementById("cash");
             if(DeliveryTypeRadios[0].checked){
                 totalDOM.innerHTML = price * 1 + 5;
                 deliveryCostCardDOM.style.visibility = "visible";
                 deliveryAddressDOM.style.display = "block";
+                cashRadioDOM.disabled = true;
+                cardRadioDOM.checked = true;
             }else if(DeliveryTypeRadios[1].checked){
                 totalDOM.innerHTML = price;
                 deliveryCostCardDOM.style.visibility = "hidden";
@@ -116,7 +151,8 @@
                 document.getElementById("address").value = '';
                 document.getElementById("postalCode").value = '';
                 deliveryAddressDOM.style.display = "none";
-            }else{0
+                cashRadioDOM.disabled = false;
+            }else{
                 alert(error);
             }
         }

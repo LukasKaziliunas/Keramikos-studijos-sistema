@@ -19,7 +19,7 @@
         <a class="nav-link" href="/orders/userOrders" style="color: white;">Mano užsakymai</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/clients/basket" style="color: white;">Krepšelis</a>
+        <a class="nav-link" href="/clients/basket" style="color: white;">Krepšelis (<span id="itemsAmount">0</span>)</a>
       </li>
     </ul>
     </ul>
@@ -30,3 +30,20 @@
     </form>
   </div>
 </nav>
+
+<script>
+    window.onload = setBasketItemsAmount();
+
+   function setBasketItemsAmount(){
+      var itemsAmountSpan = document.getElementById("itemsAmount");
+      if(itemsAmountSpan != null){
+        let basketItems = localStorage.getItem('basketItems');
+        basketItems = JSON.parse(basketItems);
+        var amountsTotal = 0;
+        for(let i = 0, length = basketItems.length; i < length; i++){
+          amountsTotal += parseInt(basketItems[i].quantity);
+        }
+        itemsAmountSpan.innerHTML = amountsTotal;
+      }
+    }
+</script>

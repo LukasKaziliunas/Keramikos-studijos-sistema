@@ -44,6 +44,18 @@
 </div>
 
 <script>
+    window.onload = setActiveBasketButtons();
+
+    function setActiveBasketButtons(){
+      let basketItems = localStorage.getItem('basketItems');
+      basketItems = JSON.parse(basketItems);
+
+      for(let i = 0, length = basketItems.length; i < length; i++){
+          let basketButtonDOM = document.getElementById(`basketButton-${basketItems[i].id}`);
+          basketButtonDOM.classList.add('active');
+        }
+    }
+    
     function toBasket(id)
     {
       fetch(`/inventory/getPottery/${id}`)
@@ -56,46 +68,48 @@
 
     function addItemToBasket(itemData){
 
-      let basketItems = localStorage.getItem('basketItems');
-      basketItems = JSON.parse(basketItems);
-      let message = document.getElementById("message");
-    
-    let pottery = {
-        id: itemData.id,
-        name: itemData.name,
-        price: itemData.price,
-        photo: itemData.photo,
-        quantity: 1,
-        inStock: itemData.amount
-    } 
+          let basketItems = localStorage.getItem('basketItems');
+          basketItems = JSON.parse(basketItems);
+          let message = document.getElementById("message");
+        
+        let pottery = {
+            id: itemData.id,
+            name: itemData.name,
+            price: itemData.price,
+            photo: itemData.photo,
+            quantity: 1,
+            inStock: itemData.amount
+        } 
 
-    if(basketItems != null){
-        //array not empty
-        if(!checkIfInBasket(basketItems, pottery))  // does not contain this item yet
-        {
-            basketItems.push(pottery) 
+        if(basketItems != null){
+            //array not empty
+            if(!checkIfInBasket(basketItems, pottery))  // does not contain this item yet
+            {
+                basketItems.push(pottery) 
+                document.getElementById(`basketButton-${pottery.id}`).classList.add('active');
+                message.innerHTML = `<div class="alert alert-info" role="alert">
+                                        dirbinys pridėtas į krepšelį
+                                    </div>`;
+                setTimeout(clearMessage, 4000)
+            }else
+            {
+                message.innerHTML = `<div class="alert alert-danger" role="alert">
+                                        dirbinys jau yra krepšelyje  
+                                    </div>`;
+                setTimeout(clearMessage, 4000)
+            }
+            
+        }else{
+            basketItems =  [ pottery ]
+            
             message.innerHTML = `<div class="alert alert-info" role="alert">
-                                    dirbinys pridėtas į krepšelį
-                                </div>`;
-            setTimeout(clearMessage, 4000)
-        }else
-        {
-            message.innerHTML = `<div class="alert alert-danger" role="alert">
-                                    dirbinys jau yra krepšelyje  
-                                </div>`;
+                                        dirbinys pridėtas į krepšelį
+                                    </div>`;
             setTimeout(clearMessage, 4000)
         }
-        
-    }else{
-        basketItems =  [ pottery ]
-        
-        message.innerHTML = `<div class="alert alert-info" role="alert">
-                                    dirbinys pridėtas į krepšelį
-                                </div>`;
-        setTimeout(clearMessage, 4000)
-    }
 
-    localStorage.setItem("basketItems", JSON.stringify(basketItems))
+        localStorage.setItem("basketItems", JSON.stringify(basketItems))
+        setBasketItemsAmount(); //this function is in headerLoggedIn.ejs file
     }
 
     function checkIfInBasket(basket, pottery)
