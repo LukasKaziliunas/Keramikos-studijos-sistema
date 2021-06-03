@@ -86,7 +86,7 @@ exports.updateState = function(id, state){
 
 exports.getClientOrders = function(clientId){
     var sql = "SELECT `order`.id as id, DATE_FORMAT(`order`.date, '%Y-%m-%d') as date, `order`.sum, IFNULL(paymenttype.name, \
-        'mokėjimas nepasirinktas arba neatliktas')  as paymentType,    IF(orderstate.name = 'naujas', 'pateiktas', orderstate.name) as orderState, ordertype.name as orderType,\
+        'mokėjimas neatliktas')  as paymentType,    IF(orderstate.name = 'naujas', 'pateiktas', orderstate.name) as orderState, ordertype.name as orderType,\
         orderType as orderTypeId FROM `order` LEFT JOIN payment    ON `order`.`id` = payment.fk_Order LEFT JOIN paymenttype \
         ON payment.paymentType = paymenttype.id INNER JOIN orderstate    ON `order`.state = orderstate.id INNER JOIN ordertype ON \
         `order`.`orderType` = ordertype.id WHERE `order`.`fk_Client` = ? ORDER BY date DESC";

@@ -114,11 +114,9 @@ router.post('/purchase', authenticateClient, function(req, res, next) {
 });
 
 router.get('/paymentSelectionForm', authenticateClient, function (req, res, next) {
-  let price = req.query.price;
   let orderId = req.query.orderId;
   Order.getById(orderId).then(order => {
-      console.log(order);
-      return res.render('orders/paymentSelectionForm', { layout: './layouts/clientLayout', auth: true, email: req.user.email, order: order, price: price }); 
+      return res.render('orders/paymentSelectionForm', { layout: './layouts/clientLayout', auth: true, email: req.user.email, order: order }); 
   })
 
 });
@@ -241,7 +239,7 @@ router.post('/approveOrder', [
     .then(() => {
       return saveOrderMaterials(req.body.materials, req.body.amounts, potteryAmount, potteryOrderId)  
     }).then(()=>{
-      return res.redirect("/"); 
+      return res.redirect("/orders/ordersList"); 
     })
     .catch(err => { console.log(err); return res.sendStatus(500) })
     }
@@ -262,8 +260,10 @@ router.get('/clientOrderInfo', authenticateClient, function(req, res, next) {
     .catch(error => { console.log(error); return res.sendStatus(500) })
   }else if(orderType == 2){
     //pirkimo
-    PurchasedPottery.get(orderId).then(items => {
-        return res.render('orders/clientPurchaseOrderInfo', { layout: './layouts/clientLayout', auth: true, items: items, orderId: orderId, state: orderState, email: req.user.email });
+    let purchasedPotteryP = PurchasedPottery.get(orderId)
+    let paymentMadeP = Payment.isPaymentMade(orderId);
+    Promise.all([purchasedPotteryP, paymentMadeP]).then(values => {
+        return res.render('orders/clientPurchaseOrderInfo', { layout: './layouts/clientLayout', auth: true, items: values[0], paymentMade: values[1].paymentMade, orderId: orderId, state: orderState, email: req.user.email });
     })
     .catch(error => { console.log(error); return res.sendStatus(500) })
   }else{
